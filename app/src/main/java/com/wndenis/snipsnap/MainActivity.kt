@@ -1,4 +1,4 @@
-package com.example.snipsnap
+package com.wndenis.snipsnap
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
