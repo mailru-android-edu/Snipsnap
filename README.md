@@ -9,5 +9,6 @@
 Подболотов Дмитрий  
 Доскач Наталья  
 Денис Поздняков  
-Денис Поздняков # test commit from wndenis +1  
+Денис Поздняков # test commit from wndenis  
+***
   
