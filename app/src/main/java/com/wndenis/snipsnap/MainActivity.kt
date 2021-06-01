@@ -19,10 +19,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.HideImage
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.ZoomIn
-import androidx.compose.material.icons.filled.ZoomOut
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -47,11 +44,13 @@ class MainActivity : ComponentActivity() {
     @ExperimentalComposeUiApi
     @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        val name = intent.getStringExtra("name").toString()
+        Log.i("got name",name)
         super.onCreate(savedInstanceState)
         setTheme(R.style.SplashScreenTheme)
         setContent {
             SnipsnapTheme {
-                Scaffold {
+                Scaffold{
                     Surface {
                         ScheduleCalendarDemo()
                     }
@@ -59,10 +58,17 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onBackPressed() {
+        Log.i("back btn:","pressed");
+        finish();
+    }
 }
 
 
-fun LocalDateTime.conv(): String {
+
+
+    fun LocalDateTime.conv(): String {
     val df = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
     //getDateTimeInstance()//
     return this.format(df)
@@ -316,10 +322,12 @@ fun ScheduleCalendarDemo() {
 
 
     Column(
-        modifier = Modifier.fillMaxHeight().graphicsLayer(
-            scaleX = scale,
-            scaleY = scale,
-        )
+        modifier = Modifier
+            .fillMaxHeight()
+            .graphicsLayer(
+                scaleX = scale,
+                scaleY = scale,
+            )
             .transformable(state = state)
     ) {
         Row {
