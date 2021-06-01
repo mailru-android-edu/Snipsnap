@@ -11,7 +11,10 @@ import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.HideImage
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.ZoomIn
+import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -83,6 +86,12 @@ fun ErrorDialog(howToExit: () -> Unit) {
 }
 
 
+fun prepareCalendarToShare(eventSections: MutableList<CalendarSection>): String {
+    val text = Gson().toJson(eventSections)
+//    return "O hi mark"
+    return text
+}
+
 @ExperimentalComposeUiApi
 @Composable
 fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -> Unit) {
@@ -116,12 +125,10 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
 
 
     Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .graphicsLayer(
-                scaleX = scale,
-                scaleY = scale,
-            )
+        modifier = Modifier.fillMaxHeight().graphicsLayer(
+            scaleX = scale,
+            scaleY = scale,
+        )
             .transformable(state = state)
     ) {
         Row {
