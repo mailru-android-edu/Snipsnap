@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.google.gson.Gson
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.buttons
 import com.vanpra.composematerialdialogs.color.colorChooser
@@ -110,7 +111,6 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                 updater()
             }
         )
-
     }
 
     val date2 = remember { MaterialDialog() }
@@ -283,6 +283,12 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
 }
 
 
+fun prepareCalendarToShare(eventSections: MutableList<CalendarSection>): String {
+    val text = Gson().toJson(eventSections)
+//    return "O hi mark"
+    return text
+}
+
 @ExperimentalComposeUiApi
 @Composable
 fun ScheduleCalendarDemo() {
@@ -337,11 +343,12 @@ fun ScheduleCalendarDemo() {
 //
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(onClick = {
+                val text = prepareCalendarToShare(eventSections)
                 val sendIntent = Intent().apply {
                     action = Intent.ACTION_SEND
                     putExtra(
                         Intent.EXTRA_TEXT,
-                        "О, привет!\nОтправлено из моего крутого приложения)"
+                        text
                     )
                     type = "text/plain"
                 }
