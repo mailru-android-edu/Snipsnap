@@ -61,6 +61,7 @@ dependencies {
 
 
     implementation("com.google.accompanist:accompanist-pager:0.10.0")
+    implementation("com.google.firebase:protolite-well-known-types:17.1.1")
 //    implementation("com.jakewharton.threetenabp:threetenabp:1.3.1")
 
     coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:1.1.5")
