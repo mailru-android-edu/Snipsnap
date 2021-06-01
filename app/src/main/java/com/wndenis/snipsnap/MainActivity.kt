@@ -1,19 +1,12 @@
 package com.wndenis.snipsnap
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.wndenis.snipsnap.ui.theme.*
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -35,12 +28,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -48,8 +38,7 @@ import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.buttons
 import com.vanpra.composematerialdialogs.color.colorChooser
 import com.vanpra.composematerialdialogs.datetime.datetimepicker
-import java.text.DateFormat.getDateTimeInstance
-import java.text.SimpleDateFormat
+import com.wndenis.snipsnap.ui.theme.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -80,7 +69,7 @@ fun LocalDateTime.conv(): String {
 
 fun hideKeyboard(context: Context) {
     val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
 }
 
 @ExperimentalComposeUiApi
@@ -316,7 +305,7 @@ fun ScheduleCalendarDemo() {
 
     var scale by remember { mutableStateOf(1f) }
     val state = rememberTransformableState { zoomChange, _, _ ->
-//        scale *= zoomChange
+        scale *= zoomChange
     }
 
 
