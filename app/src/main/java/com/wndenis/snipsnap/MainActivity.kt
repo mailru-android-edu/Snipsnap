@@ -1,19 +1,12 @@
 package com.wndenis.snipsnap
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.wndenis.snipsnap.ui.theme.*
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -26,27 +19,27 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.HideImage
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.ZoomIn
+import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.google.gson.Gson
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.buttons
 import com.vanpra.composematerialdialogs.color.colorChooser
 import com.vanpra.composematerialdialogs.datetime.datetimepicker
-import java.text.DateFormat.getDateTimeInstance
-import java.text.SimpleDateFormat
+import com.wndenis.snipsnap.ui.theme.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -54,13 +47,11 @@ class MainActivity : ComponentActivity() {
     @ExperimentalComposeUiApi
     @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-        val name = intent.getStringExtra("name").toString()
-        Log.i("got name",name)
         super.onCreate(savedInstanceState)
         setTheme(R.style.SplashScreenTheme)
         setContent {
             SnipsnapTheme {
-                Scaffold{
+                Scaffold {
                     Surface {
                         ScheduleCalendarDemo()
                     }
@@ -68,17 +59,10 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    override fun onBackPressed() {
-        Log.i("back btn:","pressed");
-        finish();
-    }
 }
 
 
-
-
-    fun LocalDateTime.conv(): String {
+fun LocalDateTime.conv(): String {
     val df = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
     //getDateTimeInstance()//
     return this.format(df)
@@ -86,7 +70,7 @@ class MainActivity : ComponentActivity() {
 
 fun hideKeyboard(context: Context) {
     val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
 }
 
 @ExperimentalComposeUiApi
@@ -127,7 +111,6 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                 updater()
             }
         )
-
     }
 
     val date2 = remember { MaterialDialog() }
@@ -300,6 +283,12 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
 }
 
 
+fun prepareCalendarToShare(eventSections: MutableList<CalendarSection>): String {
+    val text = Gson().toJson(eventSections)
+//    return "O hi mark"
+    return text
+}
+
 @ExperimentalComposeUiApi
 @Composable
 fun ScheduleCalendarDemo() {
@@ -322,17 +311,15 @@ fun ScheduleCalendarDemo() {
 
     var scale by remember { mutableStateOf(1f) }
     val state = rememberTransformableState { zoomChange, _, _ ->
-//        scale *= zoomChange
+        scale *= zoomChange
     }
 
 
     Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .graphicsLayer(
-                scaleX = scale,
-                scaleY = scale,
-            )
+        modifier = Modifier.fillMaxHeight().graphicsLayer(
+            scaleX = scale,
+            scaleY = scale,
+        )
             .transformable(state = state)
     ) {
         Row {
@@ -356,11 +343,12 @@ fun ScheduleCalendarDemo() {
 //
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(onClick = {
+                val text = prepareCalendarToShare(eventSections)
                 val sendIntent = Intent().apply {
                     action = Intent.ACTION_SEND
                     putExtra(
                         Intent.EXTRA_TEXT,
-                        "О, привет!\nОтправлено из моего крутого приложения)"
+                        text
                     )
                     type = "text/plain"
                 }

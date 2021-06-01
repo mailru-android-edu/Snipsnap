@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import com.wndenis.snipsnap.ui.theme.G500
 import com.wndenis.snipsnap.ui.theme.Y500
 import java.time.LocalDateTime
@@ -341,9 +343,19 @@ data class CalendarSection(
 ) {
     fun gc() {
         val toRemove = mutableListOf<Int>()
-        events.withIndex().forEach{v -> if (v.value.deleted) toRemove.add(v.index)}
+        events.withIndex().forEach { v -> if (v.value.deleted) toRemove.add(v.index) }
         for (i in toRemove.reversed()) {
             events.removeAt(i)
+        }
+    }
+
+    fun export(): String {
+        return Gson().toJson(this)
+    }
+
+    companion object {
+        fun import(stringRepr: String): CalendarSection? {
+            return Gson().fromJson(stringRepr, CalendarSection::class.java)
         }
     }
 }
@@ -354,9 +366,8 @@ data class CalendarEvent(
     var name: String = "",
     var color: Color = G500,
     var deleted: Boolean = false
-)
-{
-    fun mimic(calendarEvent: CalendarEvent){
+) {
+    fun mimic(calendarEvent: CalendarEvent) {
         this.startDate = calendarEvent.startDate
         this.endDate = calendarEvent.endDate
         this.name = calendarEvent.name
