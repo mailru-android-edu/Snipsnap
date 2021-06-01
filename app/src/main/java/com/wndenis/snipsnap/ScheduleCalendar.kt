@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
-import com.wndenis.snipsnap.ui.theme.G500
+import com.wndenis.snipsnap.data.CalendarAdapter
+import com.wndenis.snipsnap.data.CalendarEvent
+import com.wndenis.snipsnap.data.CalendarSection
 import com.wndenis.snipsnap.ui.theme.Y500
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -46,16 +46,11 @@ fun ScheduleCalendar(
     state: ScheduleCalendarState,
     modifier: Modifier = Modifier,
     viewSpan: Long = 48 * 3600L, // in seconds
-    sections: List<CalendarSection> = listOf(
-        CalendarSection(),
-        CalendarSection(),
-        CalendarSection(),
-        CalendarSection()
-    ),
     now: LocalDateTime = LocalDateTime.now(),
     eventTimesVisible: Boolean = true,
     updater: () -> Unit,
-    editor: (CalendarEvent) -> Unit
+    editor: (CalendarEvent) -> Unit,
+    adapter: CalendarAdapter
 ) =
     BoxWithConstraints(
         modifier
@@ -84,7 +79,7 @@ fun ScheduleCalendar(
                     modifier = Modifier
                         .verticalScroll(rememberScrollState())
                 ) {
-                    sections.forEach {
+                    adapter.sections.forEach {
                         CalendarSectionRow(
                             section = it,
                             state = state,
@@ -337,50 +332,12 @@ fun DayDividers(
     }
 }
 
-data class CalendarSection(
-    val name: String = "",
-    val events: MutableList<CalendarEvent> = mutableListOf()
-) {
-    fun gc() {
-        val toRemove = mutableListOf<Int>()
-        events.withIndex().forEach { v -> if (v.value.deleted) toRemove.add(v.index) }
-        for (i in toRemove.reversed()) {
-            events.removeAt(i)
-        }
-    }
-
-    fun export(): String {
-        return Gson().toJson(this)
-    }
-
-    companion object {
-        fun import(stringRepr: String): CalendarSection? {
-            return Gson().fromJson(stringRepr, CalendarSection::class.java)
-        }
-    }
-}
-
-data class CalendarEvent(
-    var startDate: LocalDateTime,
-    var endDate: LocalDateTime,
-    var name: String = "",
-    var color: Color = G500,
-    var deleted: Boolean = false
-) {
-    fun mimic(calendarEvent: CalendarEvent) {
-        this.startDate = calendarEvent.startDate
-        this.endDate = calendarEvent.endDate
-        this.name = calendarEvent.name
-        this.color = calendarEvent.color
-        this.deleted = calendarEvent.deleted
-    }
-}
-
 private data class LocalDateTimeData(
     val localDateTime: LocalDateTime,
 ) : ParentDataModifier {
     override fun Density.modifyParentData(parentData: Any?) = this@LocalDateTimeData
 }
+
 
 private val Measurable.localDateTime: LocalDateTime
     get() = (parentData as? LocalDateTimeData)?.localDateTime
