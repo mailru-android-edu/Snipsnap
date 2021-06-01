@@ -14,7 +14,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.Text
 import android.content.Context
+import android.net.Uri
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -22,60 +30,96 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.sp
-import com.google.type.Date
-import com.google.type.DateTime
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.buttons
-import com.vanpra.composematerialdialogs.color.colorChooser
 import java.io.File
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.*
+import kotlin.math.roundToInt
 
 
 const val EXTRA_MESSAGE = "com.example.myapplication.MESSAGE"
-val diagrams : MutableList<DiagramFile> = mutableListOf(DiagramFile("Project1"))
 
-data class DiagramFile(
-    var name: String = "",
+class DiagramFile(
+    var fileName: String = "",
     var date: LocalDateTime = LocalDateTime.now(),
-    var isNew: Boolean = false,
-) {   }
+    var folderPath: String = "",
+    var fullPath: String = ""
+)
 
 class MenuActivity : ComponentActivity() {
-
-    public
-    override fun onCreate(savedInstanceState: Bundle?) {
-        var files: Array<String> = this.fileList()
-        for (fileName: String in files) {
-            var file = File(fileName)
-            var f = DiagramFile(file.name)
-            //TODO change date
-            diagrams.add(f)
-
-           // ...
-        }
-
+    @ExperimentalMaterialApi
+    @ExperimentalComposeUiApi
+    @OptIn(ExperimentalAnimationApi::class)
+    public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             Scaffold(
                 topBar = { TopBarMain() },
-                floatingActionButton = { AddButton(diagrams) }
+                floatingActionButton = { AddButton(this) }
             ) {
-                DiagramList(diagrams,this)
+                var diagrams = remember { mutableStateListOf<DiagramFile>() }
+                val updater = {
+                    diagrams.clear()
+                    updateFileList(diagrams)
+                }
+                updater()
+                DiagramList(diagrams, updater, this)
             }
         }
     }
 
+
+    fun updateFileList(diagrams: MutableList<DiagramFile>) {
+        val files: Array<String> = this.fileList()
+        val path = this.filesDir
+        files.map {
+            File(path, it)
+        }.filter { it.exists() }
+            .filter { it.name.endsWith("spsp") }
+            .sortedByDescending { it.lastModified() }.map {
+                diagrams.add(
+                    DiagramFile(
+                        it.name,
+                        LocalDateTime.ofInstant(
+                            Instant.ofEpochMilli(it.lastModified()),
+                            ZoneId.systemDefault()
+                        ),
+                        it.parent!!,
+                        it.absolutePath
+                    )
+                )
+            }
+        Log.i("FILEs: ", diagrams.toString())
+    }
 }
+
+fun StartEditing(name: String, isNew: Boolean, context: Context) {
+    val intent = Intent(context, MainActivity::class.java)
+    intent.putExtra("name", name)
+    intent.putExtra("isNew", isNew)
+    context.startActivity(intent)
+}
+
 
 @Composable
 fun TopBarMain() {
-    var expanded by remember { mutableStateOf(false) }
     TopAppBar(
         title = { Text("Мои диаграммы") },
         navigationIcon = {
@@ -85,16 +129,18 @@ fun TopBarMain() {
 }
 
 
+@ExperimentalMaterialApi
 @Composable
 fun DiagramCard(
     diagram: DiagramFile,
-    onClick:()-> Unit,
-){
+    onClick: () -> Unit,
+    updater: () -> Unit
+) {
     val context = LocalContext.current
-    val nameChanger = remember { MaterialDialog() }
+    val nameChanger by remember { mutableStateOf(MaterialDialog()) }
     nameChanger.build {
+        var oldName by remember { mutableStateOf("" + diagram.fileName) }
         Row {
-            var oldName by remember { mutableStateOf(diagram.name) }
             OutlinedTextField(
                 value = oldName,
                 onValueChange = {
@@ -102,7 +148,7 @@ fun DiagramCard(
                     if (newStr.length > 25)
                         newStr = newStr.slice(0..25)
                     oldName = newStr
-                    diagram.name = newStr
+                    diagram.fileName = newStr
                 },
                 keyboardActions = KeyboardActions(
                     onAny = { hideKeyboard(context) }),
@@ -112,53 +158,50 @@ fun DiagramCard(
         }
         buttons {
             negativeButton("Отмена")
-            positiveButton("OK", onClick = {}) //TODO: Update table
+            positiveButton("OK", onClick = {
+                File(diagram.fullPath).renameTo(File(diagram.folderPath, oldName))
+                updater()
+            })
         }
-//        colorPicker()
-//        colorPicker(colors = ColorPalette.Primary)
     }
-
     Card(
         modifier = Modifier
+            .fillMaxWidth()
             .padding(
                 bottom = 5.dp,
                 top = 5.dp,
                 start = 5.dp,
                 end = 5.dp
             )
-            .fillMaxWidth()
+            .height(96.dp)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(19.dp),
-        elevation = 16.dp,
+        shape = RoundedCornerShape(18.dp),
+        elevation = 4.dp,
 
         ) {
-        Row (
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(4.dp))
                 .background(MaterialTheme.colors.surface)
-        ){
- /*           Surface(
-                modifier = Modifier.size(130.dp),
-                shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f),
-                elevation = 19.dp,
-                border = BorderStroke(1.dp, Color.Gray)
-            ) {
-            }*/
-
+        ) {
             Column(
-               modifier = Modifier
-                   .padding(start = 12.dp)
-                   .align(Alignment.CenterVertically)
+                modifier = Modifier
+                    .padding(start = 12.dp)
+                    .align(Alignment.CenterVertically)
+                    .weight(5f)
             ) {
                 Text(
-                    text = diagram.name,
+                    text = diagram.fileName,
                     style = TextStyle(
-                        fontSize = (22.sp)
+                        fontSize = (18.sp)
                     ),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 3
                 )
                 CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                    Text(text = diagram.date.conv(),
+                    Text(
+                        text = diagram.date.conv(),
                         style = typography.body2,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -168,66 +211,120 @@ fun DiagramCard(
                     )
                 }
             }
-            IconButton(onClick = {
-                nameChanger.show()
-            }) {
-                Icon(imageVector = Icons.Filled.Edit, contentDescription = "change")
-                //TODO: UPDATE LIST
-            }
-           /* IconButton(onClick = {
 
-            }) {
-                Icon(imageVector = Icons.Filled.Share, contentDescription = "import")
-            }*/
-            IconButton(onClick = {
-                if(!diagram.isNew){
-                    var destFile = File(diagram.name+"_copy")
-                    destFile.createNewFile();
-                    File(diagram.name).copyTo(destFile);
-                    val file = File(diagram.name)
-                    val deleted: Boolean = file.delete()
+            Column(
+                modifier = Modifier
+                    .weight(5f)
+                    .align(Alignment.CenterVertically),
+                horizontalAlignment = Alignment.End
+            ) {
+                Row() {
+                    IconButton(onClick = {
+                        nameChanger.show()
+                    }) { Icon(imageVector = Icons.Filled.Edit, contentDescription = "change") }
+                    IconButton(onClick = {
+
+                        val sendIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(
+                                Intent.EXTRA_STREAM,
+                                Uri.parse("file://" + diagram.fullPath)
+                            )
+                            putExtra(
+                                Intent.EXTRA_SUBJECT, "Поделиться диаграммой"
+                            );
+                            putExtra(Intent.EXTRA_TEXT, "Ура, прилетела диаграмма");
+
+                            type = "application/json"
+                        }
+                        val shareIntent = Intent.createChooser(sendIntent, "Поделиться диаграммой")
+                        //context.startActivity(shareIntent)
+
+
+                    }) {
+                        Icon(imageVector = Icons.Filled.Share, contentDescription = "export")
+                    }
+
+
+                    IconButton(onClick = {
+                        val newName =
+                            "${
+                                diagram.fileName.subSequence(
+                                    0,
+                                    diagram.fileName.length - 5
+                                )
+                            }_copy.spsp"
+                        val destFile = File(diagram.folderPath, newName)
+                        Log.i("CLONE", "${diagram.fullPath} -> ${destFile.absolutePath}")
+                        File(diagram.fullPath).copyTo(destFile, overwrite = true)
+                        updater()
+                    }) {
+                        Icon(imageVector = Icons.Filled.ContentCopy, contentDescription = "copy")
+                    }
+
+
+                    IconButton(onClick = {
+                        val file = File(diagram.fullPath) //TODO: path а не name
+                        val deleted: Boolean = file.delete()
+                        updater()
+                    }) {
+                        Icon(imageVector = Icons.Default.Delete, contentDescription = "delete")
+                    }
                 }
-                diagrams.add(DiagramFile(diagram.name+"_copy"));
-                //TODO: UPDATE LIST
-            }) {
-                Icon(imageVector = Icons.Filled.ContentCopy, contentDescription = "copy")
-            }
-            IconButton(onClick = {
-                if(!diagram.isNew){
-                    val file = File(diagram.name)
-                    val deleted: Boolean = file.delete()
-                }
-              diagrams.remove(diagram);
-                //TODO: UPDATE LIST
-            }) {
-                Icon(imageVector = Icons.Default.Delete, contentDescription = "delete")
             }
         }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
+@ExperimentalMaterialApi
 @Composable
-fun DiagramList(diagrams: MutableList<DiagramFile>,context: Context) {
-    var diagramsItems by remember { mutableStateOf(diagrams) }
-    LazyColumn {
-        itemsIndexed(items = diagramsItems) { index, d ->
-            DiagramCard(diagram = d, onClick = {
-                /**set Intent*/
-                val intent = Intent(context, MainActivity::class.java)
-                intent.putExtra("name", d.name)
-                intent.putExtra("isNew", d.isNew)
-                context.startActivity(intent)
-
-            })
+fun DiagramList(diagrams: MutableList<DiagramFile>, updater: () -> Unit, context: Context) {
+    LazyColumn(modifier = Modifier.fillMaxHeight()) {
+        itemsIndexed(items = diagrams) { index, d ->
+            DiagramCard(
+                diagram = d,
+                onClick = { StartEditing(d.fileName, false, context) },
+                updater = updater
+            )
+            Log.i("CARD", d.fullPath)
         }
     }
 
 }
 
 @Composable
-fun AddButton(diagrams: MutableList<DiagramFile>) {
+fun AddButton(context: Context) {
+    val nameChanger by remember { mutableStateOf(MaterialDialog()) }
+    nameChanger.build {
+        var oldName by remember { mutableStateOf("") }
+        Row {
+            OutlinedTextField(
+                value = oldName,
+                onValueChange = {
+                    var newStr = it
+                    if (newStr.length > 25)
+                        newStr = newStr.slice(0..25)
+                    oldName = newStr
+                },
+                keyboardActions = KeyboardActions(
+                    onAny = { hideKeyboard(context) }),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                label = { Text("Название диаграммы") })
+        }
+        buttons {
+            negativeButton("Отмена")
+            positiveButton(
+                "OK",
+                onClick = { StartEditing(oldName, true, context) }) //TODO: Update table
+        }
+    }
+
+
     FloatingActionButton(onClick = {
-        diagrams.add(DiagramFile("newDiagram",isNew = true)); }) {                 //TODO: UPDATE LIST
+        nameChanger.show()
+    }) {
         Icon(Icons.Filled.Add, contentDescription = "add a diagram")
     }
 }

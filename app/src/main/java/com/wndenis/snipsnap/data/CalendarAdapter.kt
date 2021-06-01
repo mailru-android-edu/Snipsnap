@@ -1,14 +1,18 @@
 package com.wndenis.snipsnap.data
 
+import android.os.Environment
+import android.util.Log
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.mapSaver
+import androidx.compose.ui.platform.LocalContext
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import java.time.LocalDateTime
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import com.wndenis.snipsnap.MainActivity
 import java.io.File
 
 data class CalendarAdapter(
@@ -22,25 +26,28 @@ data class CalendarAdapter(
 
     fun exportToFile() {
         val jsonRepr = exportToString()
+        val folder = MainActivity.getContext().filesDir
         val filename = "$name.spsp"
-        val file = File(filename)
+        val file = File(folder, filename)
         if (file.exists()) {
             file.delete()
         }
-        file.writeText(jsonRepr)
+        val res = file.writeText(jsonRepr)
+        Log.i("[SAVE]", "Save $res ${file.absolutePath}")
     }
 
     companion object {
         val gson: Gson = GsonBuilder()
             .setPrettyPrinting()
-            .registerTypeAdapter(LocalDateTime::class.java, LocalDateAdapter().nullSafe()).create()
+            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter().nullSafe()).create()
 
         fun importFromString(stringRepr: String): CalendarAdapter? {
-            return Gson().fromJson(stringRepr, CalendarAdapter::class.java)
+            return gson.fromJson(stringRepr, CalendarAdapter::class.java)
         }
 
         fun importFromFile(filename: String): CalendarAdapter? {
-            val file = File(filename)
+            val folder = MainActivity.getContext().filesDir
+            val file = File(folder, filename)
             if (!file.exists())
                 return null
             val jsonRepr = file.readText()
@@ -56,7 +63,7 @@ data class CalendarAdapter(
 }
 
 
-private class LocalDateAdapter : TypeAdapter<LocalDateTime>() {
+private class LocalDateTimeAdapter : TypeAdapter<LocalDateTime>() {
     override fun write(jsonWriter: JsonWriter, localDate: LocalDateTime) {
         jsonWriter.value(localDate.toString())
     }

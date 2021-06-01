@@ -1,5 +1,6 @@
 package com.wndenis.snipsnap
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -11,10 +12,7 @@ import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.HideImage
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.ZoomIn
-import androidx.compose.material.icons.filled.ZoomOut
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -27,7 +25,25 @@ import com.wndenis.snipsnap.data.CalendarEvent
 import com.wndenis.snipsnap.ui.theme.*
 import java.time.LocalDateTime
 
+class ContextKeeper {
+    companion object {
+        private lateinit var context: Context
+        fun setContext(c: Context) {
+            context = c
+        }
+    }
+}
+
 class MainActivity : ComponentActivity() {
+    companion object{
+        lateinit var activity: ComponentActivity
+        fun getContext(): Context {
+            return activity.applicationContext
+        }
+    }
+
+    var saveLastResort = {}
+
     @ExperimentalComposeUiApi
     @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,9 +51,11 @@ class MainActivity : ComponentActivity() {
         val isNew = intent.getBooleanExtra("isNew", true)
 
         super.onCreate(savedInstanceState)
+        MainActivity.activity = this
         setTheme(R.style.SplashScreenTheme)
 
         val calAdapter = CalendarAdapterCreator(isNew, name)
+        calAdapter?.let { saveLastResort = calAdapter::exportToFile }
 
         setContent {
             SnipsnapTheme {
@@ -57,7 +75,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onBackPressed() {
-        Log.i("back btn:", "pressed");
+        saveLastResort()
         finish();
     }
 }
@@ -85,13 +103,6 @@ fun ErrorDialog(howToExit: () -> Unit) {
     )
 }
 
-
-fun prepareCalendarToShare(eventSections: MutableList<CalendarSection>): String {
-    val text = Gson().toJson(eventSections)
-//    return "O hi mark"
-    return text
-}
-
 @ExperimentalComposeUiApi
 @Composable
 fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -> Unit) {
@@ -102,6 +113,7 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
             passedCalendarAdapter
         )
     }
+    calendarAdapter.exportToFile()
 
     //val eventSections = rememberSaveable { (0..25).map { CalendarSection() }.toMutableList() }
     var doAddEvent by remember { mutableStateOf(false) }
@@ -125,10 +137,12 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
 
 
     Column(
-        modifier = Modifier.fillMaxHeight().graphicsLayer(
-            scaleX = scale,
-            scaleY = scale,
-        )
+        modifier = Modifier
+            .fillMaxHeight()
+            .graphicsLayer(
+                scaleX = scale,
+                scaleY = scale,
+            )
             .transformable(state = state)
     ) {
         Row {
@@ -194,7 +208,7 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
 
         ScheduleCalendar(
             state = calendarState,
-            now = LocalDateTime.now().plusHours(8),
+            now = LocalDateTime.now(),
             eventTimesVisible = eventTimesVisible.value,
             adapter = calendarAdapter,
             viewSpan = viewSpan.value,
