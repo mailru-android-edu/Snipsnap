@@ -192,7 +192,7 @@ fun DiagramCard(
                     .weight(5f)
             ) {
                 Text(
-                    text = diagram.fileName,
+                    text = diagram.fileName.substring(0,diagram.fileName.length-5),
                     style = TextStyle(
                         fontSize = (18.sp)
                     ),
