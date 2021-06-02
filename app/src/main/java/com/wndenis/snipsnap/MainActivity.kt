@@ -168,9 +168,8 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
             }
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(onClick = {
-                eventTimesVisible.value = !(eventTimesVisible.value)
-            }) {
-                Icon(imageVector = Icons.Default.HideImage, contentDescription = "decrease")
+                eventTimesVisible.value = !(eventTimesVisible.value) }) {
+                        Icon(imageVector = if (eventTimesVisible.value) Icons.Default.TimerOff else Icons.Default.Timer, contentDescription = "decrease")
             }
 
             Spacer(modifier = Modifier.width(8.dp))

@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme.typography
+import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -46,6 +47,7 @@ import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.buttons
+import com.wndenis.snipsnap.ui.theme.Y400
 import java.io.File
 import java.time.Instant
 import java.time.LocalDateTime
@@ -119,8 +121,10 @@ fun StartEditing(name: String, isNew: Boolean, context: Context) {
 
 
 @Composable
-fun TopBarMain() {
-    TopAppBar(
+fun TopBarMain(
+
+) {
+TopAppBar(
         title = { Text("Мои диаграммы") },
         navigationIcon = {
         },
@@ -322,8 +326,11 @@ fun AddButton(context: Context) {
     }
 
 
-    FloatingActionButton(onClick = {
+    FloatingActionButton(
+        backgroundColor = Y400,
+        onClick = {
         nameChanger.show()
+
     }) {
         Icon(Icons.Filled.Add, contentDescription = "add a diagram")
     }
