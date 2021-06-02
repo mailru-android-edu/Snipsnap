@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -209,11 +210,6 @@ fun DiagramCard(
                 Row {
                     IconButton(
                         onClick = {
-                            nameChanger.show()
-                        }
-                    ) { Icon(imageVector = Icons.Filled.Edit, contentDescription = "change") }
-                    IconButton(
-                        onClick = {
 
                             val sendIntent = Intent().apply {
                                 action = Intent.ACTION_SEND
@@ -233,9 +229,13 @@ fun DiagramCard(
                             // context.startActivity(shareIntent)
                         }
                     ) {
-                        Icon(imageVector = Icons.Filled.Share, contentDescription = "export")
+                        Icon(imageVector = Icons.Filled.Share, contentDescription = "export", tint = Color.White )
                     }
-
+                    IconButton(
+                        onClick = {
+                            nameChanger.show()
+                        }
+                    ) { Icon(imageVector = Icons.Filled.Edit, contentDescription = "change") }
                     IconButton(
                         onClick = {
                             val newName =
