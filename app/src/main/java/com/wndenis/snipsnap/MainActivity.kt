@@ -35,7 +35,7 @@ class ContextKeeper {
 }
 
 class MainActivity : ComponentActivity() {
-    companion object{
+    companion object {
         lateinit var activity: ComponentActivity
         fun getContext(): Context {
             return activity.applicationContext
@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
         val isNew = intent.getBooleanExtra("isNew", true)
 
         super.onCreate(savedInstanceState)
-        MainActivity.activity = this
+        activity = this
         setTheme(R.style.SplashScreenTheme)
 
         val calAdapter = CalendarAdapterCreator(isNew, name)
@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
         saveLastResort()
         val intent = Intent(this, MenuActivity::class.java)
         startActivity(intent)
-        finishAndRemoveTask();
+        finishAndRemoveTask()
     }
 }
 

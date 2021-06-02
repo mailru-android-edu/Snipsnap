@@ -18,7 +18,6 @@ class LauncherActivity : ComponentActivity() {
             SnipsnapTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    Greeting("Android")
                 }
             }
         }
@@ -27,15 +26,10 @@ class LauncherActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     SnipsnapTheme {
-        Greeting("Android")
     }
 }

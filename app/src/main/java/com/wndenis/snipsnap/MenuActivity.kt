@@ -54,8 +54,6 @@ import java.util.*
 import kotlin.math.roundToInt
 
 
-const val EXTRA_MESSAGE = "com.example.myapplication.MESSAGE"
-
 class DiagramFile(
     var fileName: String = "",
     var date: LocalDateTime = LocalDateTime.now(),
@@ -116,7 +114,7 @@ fun StartEditing(name: String, isNew: Boolean, context: Context) {
     intent.putExtra("name", name)
     intent.putExtra("isNew", isNew)
     context.startActivity(intent)
-    (context as Activity).finishAndRemoveTask();
+    (context as Activity).finishAndRemoveTask()
 }
 
 
@@ -234,8 +232,8 @@ fun DiagramCard(
                             )
                             putExtra(
                                 Intent.EXTRA_SUBJECT, "Поделиться диаграммой"
-                            );
-                            putExtra(Intent.EXTRA_TEXT, "Ура, прилетела диаграмма");
+                            )
+                            putExtra(Intent.EXTRA_TEXT, "Ура, прилетела диаграмма")
 
                             type = "application/json"
                         }
@@ -319,7 +317,7 @@ fun AddButton(context: Context) {
             negativeButton("Отмена")
             positiveButton(
                 "OK",
-                onClick = { StartEditing(oldName, true, context) }) //TODO: Update table
+                onClick = { StartEditing(oldName, true, context) })
         }
     }
 
