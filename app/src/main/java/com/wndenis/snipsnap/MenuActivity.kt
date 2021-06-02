@@ -1,50 +1,37 @@
 package com.wndenis.snipsnap
-
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.Text
-import android.content.Context
-import android.net.Uri
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.SnackbarDefaults.backgroundColor
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.buttons
 import com.wndenis.snipsnap.ui.theme.Y400
@@ -52,9 +39,6 @@ import java.io.File
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.*
-import kotlin.math.roundToInt
-
 
 class DiagramFile(
     var fileName: String = "",
@@ -75,7 +59,7 @@ class MenuActivity : ComponentActivity() {
                 topBar = { TopBarMain() },
                 floatingActionButton = { AddButton(this) }
             ) {
-                var diagrams = remember { mutableStateListOf<DiagramFile>() }
+                val diagrams = remember { mutableStateListOf<DiagramFile>() }
                 val updater = {
                     diagrams.clear()
                     updateFileList(diagrams)
@@ -85,7 +69,6 @@ class MenuActivity : ComponentActivity() {
             }
         }
     }
-
 
     fun updateFileList(diagrams: MutableList<DiagramFile>) {
         val files: Array<String> = this.fileList()
@@ -111,7 +94,7 @@ class MenuActivity : ComponentActivity() {
     }
 }
 
-fun StartEditing(name: String, isNew: Boolean, context: Context) {
+fun startEditing(name: String, isNew: Boolean, context: Context) {
     val intent = Intent(context, MainActivity::class.java)
     intent.putExtra("name", name)
     intent.putExtra("isNew", isNew)
@@ -119,19 +102,15 @@ fun StartEditing(name: String, isNew: Boolean, context: Context) {
     (context as Activity).finishAndRemoveTask()
 }
 
-
 @Composable
-fun TopBarMain(
-
-) {
-TopAppBar(
+fun TopBarMain() {
+    TopAppBar(
         title = { Text("Мои диаграммы") },
         navigationIcon = {
         },
         actions = {}
     )
 }
-
 
 @ExperimentalMaterialApi
 @Composable
@@ -145,6 +124,7 @@ fun DiagramCard(
     nameChanger.build {
         var oldName by remember { mutableStateOf("" + diagram.fileName) }
         Row {
+
             OutlinedTextField(
                 value = oldName,
                 onValueChange = {
@@ -155,17 +135,22 @@ fun DiagramCard(
                     diagram.fileName = newStr
                 },
                 keyboardActions = KeyboardActions(
-                    onAny = { hideKeyboard(context) }),
+                    onAny = { hideKeyboard(context) }
+                ),
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                label = { Text("Название диаграммы") })
+                keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences),
+                label = { Text("Название диаграммы") }
+            )
         }
         buttons {
             negativeButton("Отмена")
-            positiveButton("OK", onClick = {
-                File(diagram.fullPath).renameTo(File(diagram.folderPath, oldName))
-                updater()
-            })
+            positiveButton(
+                "OK",
+                onClick = {
+                    File(diagram.fullPath).renameTo(File(diagram.folderPath, oldName))
+                    updater()
+                }
+            )
         }
     }
     Card(
@@ -182,7 +167,7 @@ fun DiagramCard(
         shape = RoundedCornerShape(18.dp),
         elevation = 4.dp,
 
-        ) {
+    ) {
         Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier = Modifier
@@ -196,7 +181,7 @@ fun DiagramCard(
                     .weight(5f)
             ) {
                 Text(
-                    text = diagram.fileName.substring(0,diagram.fileName.length-5),
+                    text = diagram.fileName.substring(0, diagram.fileName.length - 5),
                     style = TextStyle(
                         fontSize = (18.sp)
                     ),
@@ -222,56 +207,60 @@ fun DiagramCard(
                     .align(Alignment.CenterVertically),
                 horizontalAlignment = Alignment.End
             ) {
-                Row() {
-                    IconButton(onClick = {
-                        nameChanger.show()
-                    }) { Icon(imageVector = Icons.Filled.Edit, contentDescription = "change") }
-                    IconButton(onClick = {
-
-                        val sendIntent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            putExtra(
-                                Intent.EXTRA_STREAM,
-                                Uri.parse("file://" + diagram.fullPath)
-                            )
-                            putExtra(
-                                Intent.EXTRA_SUBJECT, "Поделиться диаграммой"
-                            )
-                            putExtra(Intent.EXTRA_TEXT, "Ура, прилетела диаграмма")
-
-                            type = "application/json"
+                Row {
+                    IconButton(
+                        onClick = {
+                            nameChanger.show()
                         }
-                        val shareIntent = Intent.createChooser(sendIntent, "Поделиться диаграммой")
-                        //context.startActivity(shareIntent)
+                    ) { Icon(imageVector = Icons.Filled.Edit, contentDescription = "change") }
+                    IconButton(
+                        onClick = {
 
+                            val sendIntent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(
+                                    Intent.EXTRA_STREAM,
+                                    Uri.parse("file://" + diagram.fullPath)
+                                )
+                                putExtra(
+                                    Intent.EXTRA_SUBJECT, "Поделиться диаграммой"
+                                )
+                                putExtra(Intent.EXTRA_TEXT, "Ура, прилетела диаграмма")
 
-                    }) {
+                                type = "application/json"
+                            }
+                            val shareIntent =
+                                Intent.createChooser(sendIntent, "Поделиться диаграммой")
+                            // context.startActivity(shareIntent)
+                        }
+                    ) {
                         Icon(imageVector = Icons.Filled.Share, contentDescription = "export")
                     }
 
-
-                    IconButton(onClick = {
-                        val newName =
-                            "${
+                    IconButton(
+                        onClick = {
+                            val newName =
+                                "${
                                 diagram.fileName.subSequence(
                                     0,
                                     diagram.fileName.length - 5
                                 )
-                            }_copy.spsp"
-                        val destFile = File(diagram.folderPath, newName)
-                        Log.i("CLONE", "${diagram.fullPath} -> ${destFile.absolutePath}")
-                        File(diagram.fullPath).copyTo(destFile, overwrite = true)
-                        updater()
-                    }) {
+                                }_copy.spsp"
+                            val destFile = File(diagram.folderPath, newName)
+                            Log.i("CLONE", "${diagram.fullPath} -> ${destFile.absolutePath}")
+                            File(diagram.fullPath).copyTo(destFile, overwrite = true)
+                            updater()
+                        }
+                    ) {
                         Icon(imageVector = Icons.Filled.ContentCopy, contentDescription = "copy")
                     }
 
-
-                    IconButton(onClick = {
-                        val file = File(diagram.fullPath) //TODO: path а не name
-                        val deleted: Boolean = file.delete()
-                        updater()
-                    }) {
+                    IconButton(
+                        onClick = {
+                            val file = File(diagram.fullPath)
+                            updater()
+                        }
+                    ) {
                         Icon(imageVector = Icons.Default.Delete, contentDescription = "delete")
                     }
                 }
@@ -285,16 +274,15 @@ fun DiagramCard(
 @Composable
 fun DiagramList(diagrams: MutableList<DiagramFile>, updater: () -> Unit, context: Context) {
     LazyColumn(modifier = Modifier.fillMaxHeight()) {
-        itemsIndexed(items = diagrams) { index, d ->
+        itemsIndexed(items = diagrams) { _, d ->
             DiagramCard(
                 diagram = d,
-                onClick = { StartEditing(d.fileName, false, context) },
+                onClick = { startEditing(d.fileName, false, context) },
                 updater = updater
             )
             Log.i("CARD", d.fullPath)
         }
     }
-
 }
 
 @Composable
@@ -312,28 +300,28 @@ fun AddButton(context: Context) {
                     oldName = newStr
                 },
                 keyboardActions = KeyboardActions(
-                    onAny = { hideKeyboard(context) }),
+                    onAny = { hideKeyboard(context) }
+                ),
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                label = { Text("Название диаграммы") })
+                keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences),
+                label = { Text("Название диаграммы") }
+            )
         }
         buttons {
             negativeButton("Отмена")
             positiveButton(
                 "OK",
-                onClick = { StartEditing(oldName, true, context) })
+                onClick = { startEditing(oldName, true, context) }
+            )
         }
     }
-
 
     FloatingActionButton(
         backgroundColor = Y400,
         onClick = {
-        nameChanger.show()
-
-    }) {
+            nameChanger.show()
+        }
+    ) {
         Icon(Icons.Filled.Add, contentDescription = "add a diagram")
     }
 }
-
-

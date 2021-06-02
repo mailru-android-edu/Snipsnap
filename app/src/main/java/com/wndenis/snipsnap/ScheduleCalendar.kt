@@ -35,11 +35,7 @@ import com.wndenis.snipsnap.ui.theme.Y500
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-//import org.threeten.bp.LocalDateTime
-//import org.threeten.bp.format.DateTimeFormatter
-//import org.threeten.bp.temporal.ChronoUnit
 import java.util.*
-
 
 @Composable
 fun ScheduleCalendar(
@@ -160,18 +156,22 @@ fun CalendarSectionRow(
                 Log.i("me", "Added")
                 section.events.add(newEvent)
                 updater()
-
-            }) {
+            }
+    ) {
         val eventMap = section.events.map { event ->
             Triple(
                 event,
-                event.startDate.isAfter(state.startDateTime) && event.startDate.isBefore(state.endDateTime),
-                event.endDate.isAfter(state.startDateTime) && event.endDate.isBefore(state.endDateTime),
+                event.startDate.isAfter(state.startDateTime) &&
+                    event.startDate.isBefore(state.endDateTime),
+                event.endDate.isAfter(state.startDateTime) &&
+                    event.endDate.isBefore(state.endDateTime),
             )
         }.filter { (event, startHit, endHit) ->
-            startHit || endHit || (event.startDate.isBefore(state.startDateTime) && event.endDate.isAfter(
-                state.endDateTime
-            ))
+            startHit || endHit || (
+                event.startDate.isBefore(state.startDateTime) && event.endDate.isAfter(
+                    state.endDateTime
+                )
+                )
         }
 
         if (eventMap.isNotEmpty()) {
@@ -196,17 +196,18 @@ fun CalendarSectionRow(
                         else -> RoundedCornerShape(4.dp)
                     }
 
-                    Column(modifier = Modifier
-                        .padding(vertical = 8.dp)
-                        .width(with(LocalDensity.current) { width.toDp() })
-                        .offset { IntOffset(offsetX, 0) }
-                        .background(event.color, shape = shape)
-                        .clip(shape)
-                        .clickable {
-                            editor(event)
-                            updater()
-                        }
-                        .padding(4.dp)
+                    Column(
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                            .width(with(LocalDensity.current) { width.toDp() })
+                            .offset { IntOffset(offsetX, 0) }
+                            .background(event.color, shape = shape)
+                            .clip(shape)
+                            .clickable {
+                                editor(event)
+                                updater()
+                            }
+                            .padding(4.dp)
                     ) {
                         Text(
                             text = event.name,
@@ -218,8 +219,10 @@ fun CalendarSectionRow(
                         )
                         AnimatedVisibility(visible = eventTimesVisible) {
                             Text(
-                                text = event.startDate.format(DateTimeFormatter.ofPattern("HH:mm")) + " - " +
-                                        event.endDate.format(DateTimeFormatter.ofPattern("HH:mm")),
+                                text = event.startDate
+                                    .format(DateTimeFormatter.ofPattern("HH:mm")) + " - " +
+                                    event.endDate
+                                        .format(DateTimeFormatter.ofPattern("HH:mm")),
                                 fontSize = 12.sp,
                                 color = Color.White,
                                 maxLines = 1,
@@ -254,10 +257,11 @@ internal fun DaysRow(
                 end = localDateTime.plusDays(1),
                 totalWidth = constraints.maxWidth
             )
-            Column(modifier = Modifier
-                .width(with(LocalDensity.current) { width.toDp() })
-                .offset { IntOffset(offsetX, 0) }
-                .padding(horizontal = 8.dp)
+            Column(
+                modifier = Modifier
+                    .width(with(LocalDensity.current) { width.toDp() })
+                    .offset { IntOffset(offsetX, 0) }
+                    .padding(horizontal = 8.dp)
             ) {
                 Text(
                     text = localDateTime.format(DateTimeFormatter.ofPattern("MMM, dd")),
@@ -337,7 +341,6 @@ private data class LocalDateTimeData(
 ) : ParentDataModifier {
     override fun Density.modifyParentData(parentData: Any?) = this@LocalDateTimeData
 }
-
 
 private val Measurable.localDateTime: LocalDateTime
     get() = (parentData as? LocalDateTimeData)?.localDateTime

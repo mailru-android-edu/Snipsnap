@@ -46,10 +46,10 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
         return 0
     }
 
-
     val date1 = remember { MaterialDialog() }
     date1.build {
-        datetimepicker(initialDateTime = editedEvent.startDate,
+        datetimepicker(
+            initialDateTime = editedEvent.startDate,
             is24HourClock = true,
             positiveButtonText = "OK",
             negativeButtonText = "Отмена",
@@ -65,7 +65,8 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
 
     val date2 = remember { MaterialDialog() }
     date2.build {
-        datetimepicker(initialDateTime = editedEvent.endDate,
+        datetimepicker(
+            initialDateTime = editedEvent.endDate,
             is24HourClock = true,
             positiveButtonText = "OK",
             negativeButtonText = "Отмена",
@@ -112,7 +113,7 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                     .padding(16.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                //================= Header
+                // ================= Header
                 Row {
                     Column {
                         Text("Редактирование события")
@@ -120,7 +121,7 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                     }
                 }
 
-                //================= Delete button
+                // ================= Delete button
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.textButtonColors(
@@ -129,11 +130,12 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                     onClick = {
                         event.deleted = true
                         dismissAction()
-                    }) {
+                    }
+                ) {
                     Text("Удалить")
                 }
 
-                //================= Edit name
+                // ================= Edit name
                 Row {
                     Divider(thickness = 1.dp)
                 }
@@ -149,13 +151,15 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                             editedEvent.name = newStr
                         },
                         keyboardActions = KeyboardActions(
-                            onAny = { hideKeyboard(context) }),
+                            onAny = { hideKeyboard(context) }
+                        ),
                         singleLine = true,
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                        label = { Text("Название события") })
+                        keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences),
+                        label = { Text("Название события") }
+                    )
                 }
 
-                //================= Color picker
+                // ================= Color picker
                 Row {
                     Box(
                         modifier = Modifier
@@ -178,7 +182,7 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                     Divider(thickness = 1.dp)
                 }
 
-                //================= Date picker 1
+                // ================= Date picker 1
                 Row {
                     Button(
                         colors = ButtonDefaults.textButtonColors(
@@ -186,12 +190,13 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                         ),
                         onClick = {
                             date1.show()
-                        }) {
+                        }
+                    ) {
                         Text("Начало: " + editedEvent.startDate.conv(), color = Color.Black)
                     }
                 }
 
-                //================= Date picker 2
+                // ================= Date picker 2
                 Row {
                     Button(
                         colors = ButtonDefaults.textButtonColors(
@@ -199,12 +204,13 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                         ),
                         onClick = {
                             date2.show()
-                        }) {
+                        }
+                    ) {
                         Text("Конец: " + editedEvent.endDate.conv(), color = Color.Black)
                     }
                 }
 
-                //================= Cancel/Save
+                // ================= Cancel/Save
                 Row(horizontalArrangement = Arrangement.SpaceBetween) {
                     Button(
                         modifier = Modifier.weight(1f),
@@ -213,7 +219,8 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                         ),
                         onClick = {
                             dismissAction()
-                        }) {
+                        }
+                    ) {
                         Text("Отмена")
                     }
                     Button(
@@ -223,7 +230,8 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                         ),
                         onClick = {
                             applyChanges()
-                        }) {
+                        }
+                    ) {
                         Text("ОК")
                     }
                 }

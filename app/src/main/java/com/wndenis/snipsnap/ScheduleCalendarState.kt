@@ -5,14 +5,12 @@ import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.runtime.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-//import org.threeten.bp.LocalDateTime
-//import org.threeten.bp.temporal.ChronoUnit
 import kotlin.math.abs
 import kotlin.math.roundToLong
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun rememberScheduleCalendarState(
@@ -136,7 +134,9 @@ class ScheduleCalendarState(
     }
 
     internal fun widthAndOffsetForEvent(
-        start: LocalDateTime, end: LocalDateTime, totalWidth: Int
+        start: LocalDateTime,
+        end: LocalDateTime,
+        totalWidth: Int
     ): Pair<Int, Int> {
         val startOffsetPercent = offsetFraction(start).coerceIn(0f, 1f)
         val endOffsetPercent = offsetFraction(end).coerceIn(0f, 1f)

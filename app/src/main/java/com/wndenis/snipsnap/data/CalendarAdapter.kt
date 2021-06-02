@@ -1,19 +1,15 @@
 package com.wndenis.snipsnap.data
 
-import android.os.Environment
 import android.util.Log
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.mapSaver
-import androidx.compose.ui.platform.LocalContext
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import java.time.LocalDateTime
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import com.wndenis.snipsnap.MainActivity
 import java.io.File
+import java.time.LocalDateTime
 
 data class CalendarAdapter(
     val name: String,
@@ -39,7 +35,10 @@ data class CalendarAdapter(
     companion object {
         val gson: Gson = GsonBuilder()
             .setPrettyPrinting()
-            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter().nullSafe()).create()
+            .registerTypeAdapter(
+                LocalDateTime::class.java,
+                LocalDateTimeAdapter().nullSafe()
+            ).create()
 
         fun importFromString(stringRepr: String): CalendarAdapter? {
             return gson.fromJson(stringRepr, CalendarAdapter::class.java)
@@ -61,7 +60,6 @@ data class CalendarAdapter(
         }
     }
 }
-
 
 private class LocalDateTimeAdapter : TypeAdapter<LocalDateTime>() {
     override fun write(jsonWriter: JsonWriter, localDate: LocalDateTime) {

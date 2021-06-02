@@ -3,7 +3,6 @@ package com.wndenis.snipsnap
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -22,17 +21,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.wndenis.snipsnap.data.CalendarAdapter
 import com.wndenis.snipsnap.data.CalendarEvent
-import com.wndenis.snipsnap.ui.theme.*
+import com.wndenis.snipsnap.ui.theme.SnipsnapTheme
 import java.time.LocalDateTime
-
-class ContextKeeper {
-    companion object {
-        private lateinit var context: Context
-        fun setContext(c: Context) {
-            context = c
-        }
-    }
-}
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -98,7 +88,8 @@ fun ErrorDialog(howToExit: () -> Unit) {
             Button(
                 onClick = {
                     howToExit()
-                }) {
+                }
+            ) {
                 Text("Очень жаль")
             }
         },
@@ -117,7 +108,7 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
     }
     calendarAdapter.exportToFile()
 
-    //val eventSections = rememberSaveable { (0..25).map { CalendarSection() }.toMutableList() }
+    // val eventSections = rememberSaveable { (0..25).map { CalendarSection() }.toMutableList() }
     var doAddEvent by remember { mutableStateOf(false) }
     var editingEvent: CalendarEvent? by remember { mutableStateOf(null) }
 
@@ -131,12 +122,10 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
 
     val context = LocalContext.current
 
-
     var scale by remember { mutableStateOf(1f) }
     val state = rememberTransformableState { zoomChange, _, _ ->
         scale *= zoomChange
     }
-
 
     Column(
         modifier = Modifier
@@ -148,22 +137,28 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
             .transformable(state = state)
     ) {
         Row {
-            IconButton(onClick = {
-                calendarAdapter.exportToFile()
-                howToExit()
-            }) {
+            IconButton(
+                onClick = {
+                    calendarAdapter.exportToFile()
+                    howToExit()
+                }
+            ) {
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
             }
 
-            IconButton(onClick = {
-                viewSpan.value = (viewSpan.value * 2).coerceAtMost(96 * 3600)
-            }) {
+            IconButton(
+                onClick = {
+                    viewSpan.value = (viewSpan.value * 2).coerceAtMost(96 * 3600)
+                }
+            ) {
                 Icon(imageVector = Icons.Default.ZoomOut, contentDescription = "increase")
             }
             Spacer(modifier = Modifier.width(8.dp))
-            IconButton(onClick = {
-                viewSpan.value = (viewSpan.value / 2).coerceAtLeast(3 * 3600)
-            }) {
+            IconButton(
+                onClick = {
+                    viewSpan.value = (viewSpan.value / 2).coerceAtLeast(3 * 3600)
+                }
+            ) {
                 Icon(imageVector = Icons.Default.ZoomIn, contentDescription = "decrease")
             }
             Spacer(modifier = Modifier.width(8.dp))
@@ -173,19 +168,21 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
             }
 
             Spacer(modifier = Modifier.width(8.dp))
-            IconButton(onClick = {
-                val text = calendarAdapter.exportToString()
-                val sendIntent = Intent().apply {
-                    action = Intent.ACTION_SEND
-                    putExtra(
-                        Intent.EXTRA_TEXT,
-                        text
-                    )
-                    type = "text/plain"
+            IconButton(
+                onClick = {
+                    val text = calendarAdapter.exportToString()
+                    val sendIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(
+                            Intent.EXTRA_TEXT,
+                            text
+                        )
+                        type = "text/plain"
+                    }
+                    val shareIntent = Intent.createChooser(sendIntent, null)
+                    context.startActivity(shareIntent)
                 }
-                val shareIntent = Intent.createChooser(sendIntent, null)
-                context.startActivity(shareIntent)
-            }) {
+            ) {
                 Icon(imageVector = Icons.Default.Share, contentDescription = "share")
             }
         }

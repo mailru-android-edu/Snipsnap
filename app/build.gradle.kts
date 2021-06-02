@@ -59,18 +59,16 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     implementation("androidx.activity:activity-compose:1.3.0-alpha08")
 
-
     implementation("com.google.accompanist:accompanist-pager:0.10.0")
-    implementation("com.google.firebase:protolite-well-known-types:17.1.1")
-    implementation ("com.google.accompanist:accompanist-swiperefresh:0.10.0")
+    implementation("com.google.firebase:protolite-well-known-types:18.0.0")
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.10.0")
 //    implementation("com.jakewharton.threetenabp:threetenabp:1.3.1")
 
-    coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:1.1.5")
-    implementation ("io.github.vanpra.compose-material-dialogs:core:0.4.1")
-    implementation ("io.github.vanpra.compose-material-dialogs:datetime:0.4.1")
-    implementation ("io.github.vanpra.compose-material-dialogs:color:0.4.1")
-    implementation ("com.google.code.gson:gson:2.8.7")
-
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.5")
+    implementation("io.github.vanpra.compose-material-dialogs:core:0.4.1")
+    implementation("io.github.vanpra.compose-material-dialogs:datetime:0.4.1")
+    implementation("io.github.vanpra.compose-material-dialogs:color:0.4.1")
+    implementation("com.google.code.gson:gson:2.8.7")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.2")
