@@ -99,7 +99,6 @@ fun startEditing(name: String, isNew: Boolean, context: Context) {
     intent.putExtra("name", name)
     intent.putExtra("isNew", isNew)
     context.startActivity(intent)
-    (context as Activity).finishAndRemoveTask()
 }
 
 @Composable
@@ -258,6 +257,7 @@ fun DiagramCard(
                     IconButton(
                         onClick = {
                             val file = File(diagram.fullPath)
+                            val deleted: Boolean = file.delete()
                             updater()
                         }
                     ) {

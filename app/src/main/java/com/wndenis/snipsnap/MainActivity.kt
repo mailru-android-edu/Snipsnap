@@ -68,7 +68,6 @@ class MainActivity : ComponentActivity() {
         saveLastResort()
         val intent = Intent(this, MenuActivity::class.java)
         startActivity(intent)
-        finishAndRemoveTask()
     }
 }
 
