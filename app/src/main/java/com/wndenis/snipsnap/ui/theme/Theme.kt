@@ -28,7 +28,6 @@ private val LightColorPalette = lightColors(
     onBackground = N800,
 )
 
-
 @Composable
 fun SnipsnapTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

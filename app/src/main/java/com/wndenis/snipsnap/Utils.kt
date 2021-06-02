@@ -2,7 +2,6 @@ package com.wndenis.snipsnap
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
