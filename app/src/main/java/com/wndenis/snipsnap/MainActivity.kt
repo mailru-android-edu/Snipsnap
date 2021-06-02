@@ -76,7 +76,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onBackPressed() {
         saveLastResort()
-        finish();
+        val intent = Intent(this, MenuActivity::class.java)
+        startActivity(intent)
+        finishAndRemoveTask();
     }
 }
 

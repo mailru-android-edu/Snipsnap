@@ -1,5 +1,6 @@
 package com.wndenis.snipsnap
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -115,6 +116,7 @@ fun StartEditing(name: String, isNew: Boolean, context: Context) {
     intent.putExtra("name", name)
     intent.putExtra("isNew", isNew)
     context.startActivity(intent)
+    (context as Activity).finishAndRemoveTask();
 }
 
 
