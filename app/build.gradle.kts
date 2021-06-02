@@ -3,6 +3,10 @@ plugins {
     id("kotlin-android")
 }
 
+val versionMajor = 1
+val versionMinor = 1
+val versionPatch = 0
+
 android {
     compileSdk = 30
     buildToolsVersion = "30.0.3"
@@ -11,8 +15,9 @@ android {
         applicationId = "com.wndenis.snipsnap"
         minSdk = 23
         targetSdk = 30
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = versionMajor * 10000 + versionMinor * 100 + versionPatch
+        versionName = "$versionMajor.$versionMinor.$versionPatch"
+        the<BasePluginConvention>().archivesBaseName = "${rootProject.name}.v$versionName"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -22,7 +27,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

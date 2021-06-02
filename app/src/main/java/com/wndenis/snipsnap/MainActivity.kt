@@ -42,7 +42,6 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         activity = this
-        setTheme(R.style.SplashScreenTheme)
 
         val calAdapter = CalendarAdapterCreator(isNew, name)
         calAdapter?.let { saveLastResort = calAdapter::exportToFile }

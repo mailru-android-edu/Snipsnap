@@ -1,5 +1,5 @@
 package com.wndenis.snipsnap
-import android.app.Activity
+
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -18,7 +18,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.typography
-import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
@@ -48,12 +47,15 @@ class DiagramFile(
     var fullPath: String = ""
 )
 
+var FABClick: (() -> Unit)? = null
+
 class MenuActivity : ComponentActivity() {
     @ExperimentalMaterialApi
     @ExperimentalComposeUiApi
     @OptIn(ExperimentalAnimationApi::class)
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setTheme(R.style.SplashScreenTheme)
 
         setContent {
             Scaffold(
@@ -91,7 +93,6 @@ class MenuActivity : ComponentActivity() {
                     )
                 )
             }
-        Log.i("FILEs: ", diagrams.toString())
     }
 }
 
@@ -117,42 +118,10 @@ fun TopBarMain() {
 fun DiagramCard(
     diagram: DiagramFile,
     onClick: () -> Unit,
-    updater: () -> Unit
+    updater: () -> Unit,
+    onEdit: () -> Unit
 ) {
     val context = LocalContext.current
-    val nameChanger by remember { mutableStateOf(MaterialDialog()) }
-    nameChanger.build {
-        var oldName by remember { mutableStateOf("" + diagram.fileName) }
-        Row {
-
-            OutlinedTextField(
-                value = oldName,
-                onValueChange = {
-                    var newStr = it
-                    if (newStr.length > 25)
-                        newStr = newStr.slice(0..25)
-                    oldName = newStr
-                    diagram.fileName = newStr
-                },
-                keyboardActions = KeyboardActions(
-                    onAny = { hideKeyboard(context) }
-                ),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences),
-                label = { Text("Название диаграммы") }
-            )
-        }
-        buttons {
-            negativeButton("Отмена")
-            positiveButton(
-                "OK",
-                onClick = {
-                    File(diagram.fullPath).renameTo(File(diagram.folderPath, oldName))
-                    updater()
-                }
-            )
-        }
-    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -229,22 +198,20 @@ fun DiagramCard(
                             // context.startActivity(shareIntent)
                         }
                     ) {
-                        Icon(imageVector = Icons.Filled.Share, contentDescription = "export", tint = Color.White )
+                        Icon(
+                            imageVector = Icons.Filled.Share,
+                            contentDescription = "export",
+                            tint = Color.White
+                        )
                     }
                     IconButton(
                         onClick = {
-                            nameChanger.show()
+                            onEdit()
                         }
                     ) { Icon(imageVector = Icons.Filled.Edit, contentDescription = "change") }
                     IconButton(
                         onClick = {
-                            val newName =
-                                "${
-                                diagram.fileName.subSequence(
-                                    0,
-                                    diagram.fileName.length - 5
-                                )
-                                }_copy.spsp"
+                            val newName = makeName("${extractName(diagram.fileName)}_copy")
                             val destFile = File(diagram.folderPath, newName)
                             Log.i("CLONE", "${diagram.fullPath} -> ${destFile.absolutePath}")
                             File(diagram.fullPath).copyTo(destFile, overwrite = true)
@@ -270,28 +237,41 @@ fun DiagramCard(
     }
 }
 
+fun initSelected(): DiagramFile? {
+    return null
+}
+
 @ExperimentalMaterialApi
 @Composable
 fun DiagramList(diagrams: MutableList<DiagramFile>, updater: () -> Unit, context: Context) {
-    LazyColumn(modifier = Modifier.fillMaxHeight()) {
-        itemsIndexed(items = diagrams) { _, d ->
-            DiagramCard(
-                diagram = d,
-                onClick = { startEditing(d.fileName, false, context) },
-                updater = updater
-            )
-            Log.i("CARD", d.fullPath)
-        }
-    }
-}
-
-@Composable
-fun AddButton(context: Context) {
     val nameChanger by remember { mutableStateOf(MaterialDialog()) }
+    var selectedDiagram by remember { mutableStateOf(initSelected()) }
+    var nameChangerAction = remember { { _: String -> } }
+
+    val renameAndCreate = { newName: String ->
+        startEditing(newName, true, context)
+    }
+
+    val renameExisting = { newName: String ->
+        val filename = makeName(newName)
+        File(selectedDiagram!!.fullPath).renameTo(File(selectedDiagram!!.folderPath, filename))
+        updater()
+    }
+
+    FABClick = {
+        selectedDiagram = DiagramFile()
+        nameChangerAction = renameAndCreate
+    }
+
     nameChanger.build {
-        var oldName by remember { mutableStateOf("") }
-        Row {
+        var oldName by remember { mutableStateOf("" + extractName(selectedDiagram?.fileName)) }
+        Row(
+            Modifier
+                .padding(18.dp)
+                .fillMaxWidth()
+        ) {
             OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
                 value = oldName,
                 onValueChange = {
                     var newStr = it
@@ -308,19 +288,45 @@ fun AddButton(context: Context) {
             )
         }
         buttons {
-            negativeButton("Отмена")
+            negativeButton(
+                "Отмена",
+                onClick = { selectedDiagram = null }
+            )
             positiveButton(
                 "OK",
-                onClick = { startEditing(oldName, true, context) }
+                onClick = {
+                    nameChangerAction(oldName)
+                    selectedDiagram = null
+                }
             )
         }
     }
 
-    FloatingActionButton(
-        backgroundColor = Y400,
-        onClick = {
+    LazyColumn(modifier = Modifier.fillMaxHeight()) {
+        itemsIndexed(items = diagrams) { _, d ->
+            DiagramCard(
+                diagram = d,
+                onClick = { startEditing(d.fileName, false, context) },
+                onEdit = {
+                    nameChangerAction = renameExisting
+                    selectedDiagram = d
+                },
+                updater = updater
+            )
+        }
+
+        selectedDiagram?.let {
+            Log.i("OMG", "IT WORKS")
             nameChanger.show()
         }
+    }
+}
+
+@Composable
+fun AddButton(context: Context) {
+    FloatingActionButton(
+        backgroundColor = Y400,
+        onClick = { FABClick?.let { FABClick!!() } }
     ) {
         Icon(Icons.Filled.Add, contentDescription = "add a diagram")
     }

@@ -9,30 +9,34 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/Theme.Snipsnap">
-        <activity
-                android:name=".LauncherActivity"
-                android:exported="true"
-                android:noHistory="true"
-                android:label="@string/title_activity_launcher"
-                android:theme="@style/SplashScreenTheme">
-        <intent-filter>
-            <category android:name="android.intent.category.LAUNCHER" />
-            <action android:name="android.intent.action.MAIN" />
-        </intent-filter>
-        </activity>
+        <!--        <activity-->
+        <!--                android:name=".LauncherActivity"-->
+        <!--                android:exported="true"-->
+        <!--                android:noHistory="true"-->
+        <!--                android:label="@string/title_activity_launcher"-->
+        <!--                android:theme="@style/SplashScreenTheme">-->
+        <!--        <intent-filter>-->
+        <!--            <category android:name="android.intent.category.LAUNCHER" />-->
+        <!--            <action android:name="android.intent.action.MAIN" />-->
+        <!--        </intent-filter>-->
+        <!--        </activity>-->
         <activity
                 android:name=".MenuActivity"
                 android:exported="true"
                 android:noHistory="true"
                 android:label="@string/app_name"
                 android:theme="@style/SplashScreenTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
                 android:name=".MainActivity"
                 android:exported="true"
                 android:noHistory="true"
                 android:label="@string/app_name"
-                android:theme="@style/SplashScreenTheme"></activity>
+                android:theme="@style/SplashScreenTheme" />
     </application>
 
 </manifest>
