@@ -11,9 +11,11 @@ import com.wndenis.snipsnap.MainActivity
 import java.io.File
 import java.time.LocalDateTime
 
+const val SECTION_COUNT = 25
+
 data class CalendarAdapter(
     val name: String,
-    val sections: List<CalendarSection> = listOf(CalendarSection())
+    val sections: List<CalendarSection> = (0..SECTION_COUNT).map { CalendarSection() }
 ) {
 
     fun exportToString(): String {

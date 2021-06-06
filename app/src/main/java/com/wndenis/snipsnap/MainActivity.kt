@@ -1,11 +1,8 @@
 package com.wndenis.snipsnap
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.inputmethodservice.Keyboard
 import android.os.Bundle
-import android.widget.Button
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -44,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import com.wndenis.snipsnap.data.CalendarAdapter
 import com.wndenis.snipsnap.data.CalendarEvent
 import com.wndenis.snipsnap.ui.theme.SnipsnapTheme
-import org.w3c.dom.Text
 import java.time.LocalDateTime
 
 class MainActivity : ComponentActivity() {
@@ -157,7 +153,7 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
             )
             .transformable(state = state)
     ) {
-        Keyboard.Row {
+        Row {
             IconButton(
                 onClick = {
                     calendarAdapter.exportToFile()
