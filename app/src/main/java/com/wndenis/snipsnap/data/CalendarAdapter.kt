@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 
 data class CalendarAdapter(
     val name: String,
-    val sections: List<CalendarSection> = (0..25).map { CalendarSection() }
+    val sections: List<CalendarSection> = listOf(CalendarSection())
 ) {
 
     fun exportToString(): String {
