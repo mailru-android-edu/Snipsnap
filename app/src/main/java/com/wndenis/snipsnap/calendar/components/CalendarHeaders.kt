@@ -21,11 +21,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wndenis.snipsnap.PADDING_8
 import com.wndenis.snipsnap.calendar.ScheduleCalendarState
 import com.wndenis.snipsnap.calendar.SpanType
+import com.wndenis.snipsnap.ui.theme.DpConst
+import com.wndenis.snipsnap.ui.theme.FontConst
 import com.wndenis.snipsnap.utils.daysBetween
 import com.wndenis.snipsnap.utils.monthsBetween
 import com.wndenis.snipsnap.utils.yearsBetween
@@ -52,7 +52,7 @@ internal fun YearRow(
                 modifier = Modifier
                     .width(with(LocalDensity.current) { width.toDp() })
                     .offset { IntOffset(offsetX, 0) }
-                    .padding(horizontal = PADDING_8)
+                    .padding(horizontal = DpConst.DST_8)
             ) {
                 val txt = localDateTime.format(DateTimeFormatter.ofPattern("yyyy"))
                 Text(
@@ -89,7 +89,7 @@ internal fun MonthRow(
                     modifier = Modifier
                         .width(with(LocalDensity.current) { width.toDp() })
                         .offset { IntOffset(offsetX, 0) }
-                        .padding(horizontal = PADDING_8)
+                        .padding(horizontal = DpConst.DST_8)
                 ) {
                     var pattern = "LL"
                     if (spanType.ordinal <= SpanType.THREE_MONTH.ordinal)
@@ -134,7 +134,7 @@ internal fun DaysRow(
                     modifier = Modifier
                         .width(with(LocalDensity.current) { width.toDp() })
                         .offset { IntOffset(offsetX, 0) }
-                        .padding(horizontal = PADDING_8)
+                        .padding(horizontal = DpConst.DST_8)
                 ) {
                     val txt = localDateTime.format(DateTimeFormatter.ofPattern("dd"))
                     Text(
@@ -152,8 +152,6 @@ internal fun DaysRow(
     }
 }
 
-val FONT_12 = 12.sp
-
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 internal fun HoursRow(
@@ -165,7 +163,7 @@ internal fun HoursRow(
                 state.visibleHours.forEach { localDateTime ->
                     Text(
                         localDateTime.format(DateTimeFormatter.ofPattern("HH:mm")),
-                        fontSize = FONT_12,
+                        fontSize = FontConst.FONT_12,
                         modifier = Modifier.then(
                             LocalDateTimeData(localDateTime)
                         )

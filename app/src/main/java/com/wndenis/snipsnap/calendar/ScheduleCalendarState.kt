@@ -15,7 +15,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import com.wndenis.snipsnap.calendar.components.DAY_SEC
+import com.wndenis.snipsnap.calendar.components.H1
+import com.wndenis.snipsnap.calendar.components.H12
+import com.wndenis.snipsnap.calendar.components.H2
+import com.wndenis.snipsnap.calendar.components.H24
+import com.wndenis.snipsnap.calendar.components.H3
+import com.wndenis.snipsnap.calendar.components.H6
 import com.wndenis.snipsnap.calendar.components.HALF_WEEK_SEC
 import com.wndenis.snipsnap.calendar.components.HOUR_SEC
 import com.wndenis.snipsnap.calendar.components.MONTH_SEC
@@ -51,6 +56,8 @@ fun rememberScheduleCalendarState(
         )
     }
 }
+
+const val SPAN_PROPROTION = -1 / 4
 
 class ScheduleCalendarState(
     referenceDateTime: LocalDateTime,
@@ -104,8 +111,6 @@ class ScheduleCalendarState(
         it
     }
 
-    val SPAN_PROPROTION = -1/4
-
     fun scrollToNow(newSpan: Long) {
         coroutineScope.launch {
             canUpdateView = false
@@ -157,24 +162,13 @@ class ScheduleCalendarState(
     private var anchorRangeSeconds by mutableStateOf(Long.MAX_VALUE)
     private var anchorRangePx by mutableStateOf(Float.MAX_VALUE)
 
-    private val H24 = HOUR_SEC * 24
-    private val H12 = HOUR_SEC * 12
-    private val H6 = HOUR_SEC * 6
-    private val H3 = HOUR_SEC * 3
-    private val H2 = HOUR_SEC * 2
-    private val H1 = HOUR_SEC * 1
-
     private suspend fun updateAnchors(viewSpanInSeconds: Long) {
-        anchorRangeSeconds = if (viewSpanInSeconds > H24) {
-            H24
-        } else if (viewSpanInSeconds <= H24 && viewSpanInSeconds > H12) {
-            H6
-        } else if (viewSpanInSeconds <= H12 && viewSpanInSeconds > H6) {
-            H3
-        } else if (viewSpanInSeconds <= H6 && viewSpanInSeconds > H3) {
-            H2
-        } else {
-            H1
+        anchorRangeSeconds = when {
+            viewSpanInSeconds > H24 -> H24
+            viewSpanInSeconds in (H12 + 1)..H24 -> H6
+            viewSpanInSeconds in (H6 + 1)..H12 -> H3
+            viewSpanInSeconds in (H3 + 1)..H6 -> H2
+            else -> H1
         }
         anchorRangePx = anchorRangeSeconds.toPx()
         flingToNearestAnchor(secondsOffset.value.toPx())

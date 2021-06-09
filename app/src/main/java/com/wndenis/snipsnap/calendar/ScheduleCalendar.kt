@@ -30,18 +30,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight.Companion.W500
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.vanpra.composematerialdialogs.color.ColorPalette
-import com.wndenis.snipsnap.PADDING_8
-import com.wndenis.snipsnap.calendar.components.DASH_LIGHT
+import com.wndenis.snipsnap.calendar.components.DashConst
 import com.wndenis.snipsnap.calendar.components.DayDividers
 import com.wndenis.snipsnap.calendar.components.DaysRow
 import com.wndenis.snipsnap.calendar.components.HALF_WEEK_SEC
@@ -53,6 +49,8 @@ import com.wndenis.snipsnap.calendar.components.YearRow
 import com.wndenis.snipsnap.data.CalendarAdapter
 import com.wndenis.snipsnap.data.CalendarEvent
 import com.wndenis.snipsnap.data.CalendarSection
+import com.wndenis.snipsnap.ui.theme.DpConst
+import com.wndenis.snipsnap.ui.theme.FontConst
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -118,7 +116,7 @@ fun ScheduleCalendar(
                 state = state,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = PADDING_8)
+                    .padding(vertical = DpConst.DST_8)
             )
             HoursRow(state)
             // EVENTS =============================================
@@ -144,37 +142,31 @@ fun ScheduleCalendar(
                             strokeWidth = 2f,
                             start = Offset(offsetPercent * size.width, 0f),
                             end = Offset(offsetPercent * size.width, size.height),
-                            pathEffect = DASH_LIGHT.second
+                            pathEffect = DashConst.DASH_LIGHT.second
                         )
                     }
                 }
             }
         }
         // "now" indicator =============================================
-        NowIndicator(modifier, state, now)
+        val nowColor = MaterialTheme.colors.primary
+        Canvas(modifier = modifier) {
+            val offsetPercent = state.offsetFraction(now)
+            drawLine(
+                color = nowColor,
+                strokeWidth = 6f,
+                start = Offset(offsetPercent * size.width, 0f),
+                end = Offset(offsetPercent * size.width, size.height)
+            )
+            drawCircle(
+                nowColor,
+                center = Offset(offsetPercent * size.width, CIRCLE_OFFSET),
+                radius = 12f
+            )
+        }
     }
 
 const val CIRCLE_OFFSET = 12f
-
-@Composable
-fun NowIndicator(modifier: Modifier, state: ScheduleCalendarState, now: LocalDateTime) {
-    val nowColor = MaterialTheme.colors.primary
-    Canvas(modifier = modifier) {
-        val offsetPercent = state.offsetFraction(now)
-        drawLine(
-            color = nowColor,
-            strokeWidth = 6f,
-            start = Offset(offsetPercent * size.width, 0f),
-            end = Offset(offsetPercent * size.width, size.height)
-        )
-        drawCircle(
-            nowColor,
-            center = Offset(offsetPercent * size.width, CIRCLE_OFFSET),
-            radius = 12f
-        )
-    }
-}
-
 const val EVENT_HALF_DURATION_MULTIPLIER = 1f / 6f
 
 fun getTapEvent(
@@ -258,16 +250,16 @@ fun CalendarSectionRow(
             Triple(
                 event,
                 event.startDate.isAfter(state.startDateTime) &&
-                    event.startDate.isBefore(state.endDateTime),
+                        event.startDate.isBefore(state.endDateTime),
                 event.endDate.isAfter(state.startDateTime) &&
-                    event.endDate.isBefore(state.endDateTime),
+                        event.endDate.isBefore(state.endDateTime),
             )
         }.filter { (event, startHit, endHit) ->
             startHit || endHit || (
-                event.startDate.isBefore(state.startDateTime) && event.endDate.isAfter(
-                    state.endDateTime
-                )
-                )
+                    event.startDate.isBefore(state.startDateTime) && event.endDate.isAfter(
+                        state.endDateTime
+                    )
+                    )
         }
 
         if (eventMap.isNotEmpty()) {
@@ -280,21 +272,21 @@ fun CalendarSectionRow(
                     )
 
                     val shape = when {
-                        startHit && endHit -> RoundedCornerShape(4.dp)
+                        startHit && endHit -> RoundedCornerShape(DpConst.DST_4)
                         startHit -> RoundedCornerShape(
-                            topStart = 4.dp,
-                            bottomStart = 4.dp
+                            topStart = DpConst.DST_4,
+                            bottomStart = DpConst.DST_4
                         )
                         endHit -> RoundedCornerShape(
-                            topEnd = 4.dp,
-                            bottomEnd = 4.dp
+                            topEnd = DpConst.DST_4,
+                            bottomEnd = DpConst.DST_4
                         )
-                        else -> RoundedCornerShape(4.dp)
+                        else -> RoundedCornerShape(DpConst.DST_4)
                     }
 
                     Column(
                         modifier = Modifier
-                            .padding(vertical = PADDING_8)
+                            .padding(vertical = DpConst.DST_8)
                             .width(with(LocalDensity.current) { width.toDp() })
                             .offset { IntOffset(offsetX, 0) }
                             .background(event.color, shape = shape)
@@ -303,7 +295,7 @@ fun CalendarSectionRow(
                                 editor(event)
                                 updater()
                             }
-                            .padding(4.dp)
+                            .padding(DpConst.DST_4)
                     ) {
                         Text(
                             text = event.name,
@@ -317,9 +309,9 @@ fun CalendarSectionRow(
                             Text(
                                 text = event.startDate
                                     .format(DateTimeFormatter.ofPattern("HH:mm")) + " - " +
-                                    event.endDate
-                                        .format(DateTimeFormatter.ofPattern("HH:mm")),
-                                fontSize = 12.sp,
+                                        event.endDate
+                                            .format(DateTimeFormatter.ofPattern("HH:mm")),
+                                fontSize = FontConst.FONT_12,
                                 color = Color.White,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -333,9 +325,9 @@ fun CalendarSectionRow(
         } else {
             Text(
                 text = "",
-                fontSize = 40.sp,
+                fontSize = FontConst.FONT_40,
                 fontWeight = W500,
-                modifier = Modifier.padding(4.dp)
+                modifier = Modifier.padding(DpConst.DST_4)
             )
         }
     }

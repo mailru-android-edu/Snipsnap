@@ -25,8 +25,8 @@ fun YearDividers(
             val offsetPercent = state.offsetFraction(localDateTime)
             val dash = decideDash(
                 state.spanType,
-                SpanType.YEAR to DASH_BOLD,
-                SpanType.BIGGER to DASH_MEDIUM
+                SpanType.YEAR to DashConst.DASH_BOLD,
+                SpanType.BIGGER to DashConst.DASH_MEDIUM
             )
             drawLine(
                 color = Color.Gray,
@@ -52,8 +52,8 @@ fun MonthDividers(
                 val offsetPercent = state.offsetFraction(localDateTime)
                 val dash = decideDash(
                     state.spanType,
-                    SpanType.THREE_MONTH to DASH_MEDIUM,
-                    SpanType.BIGGER to DASH_LIGHT
+                    SpanType.THREE_MONTH to DashConst.DASH_MEDIUM,
+                    SpanType.BIGGER to DashConst.DASH_LIGHT
                 )
                 drawLine(
                     color = Color.Gray,
@@ -80,10 +80,10 @@ fun DayDividers(
                 val offsetPercent = state.offsetFraction(localDateTime)
                 drawLine(
                     color = Color.Gray,
-                    strokeWidth = DASH_LIGHT.first,
+                    strokeWidth = DashConst.DASH_LIGHT.first,
                     start = Offset(offsetPercent * size.width, 0f),
                     end = Offset(offsetPercent * size.width, size.height),
-                    pathEffect = DASH_LIGHT.second
+                    pathEffect = DashConst.DASH_LIGHT.second
                 )
             }
         }

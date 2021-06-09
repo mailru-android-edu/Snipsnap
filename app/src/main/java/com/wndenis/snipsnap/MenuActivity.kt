@@ -2,7 +2,6 @@ package com.wndenis.snipsnap
 
 import android.Manifest
 import android.app.Activity
-import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -61,13 +60,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.startActivityForResult
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.buttons
+import com.wndenis.snipsnap.ui.theme.DpConst
+import com.wndenis.snipsnap.ui.theme.FontConst
 import com.wndenis.snipsnap.ui.theme.SnipsnapTheme
+import com.wndenis.snipsnap.utils.CARD_WEIGHT
 import com.wndenis.snipsnap.utils.conv
 import com.wndenis.snipsnap.utils.extractName
 import com.wndenis.snipsnap.utils.hideKeyboard
@@ -85,19 +85,6 @@ import java.time.ZoneId
 private const val FILE_EXPORT_REQUEST_CODE = 12
 private const val PICK_FILE = 2
 const val MAX_FILE_NAME_LENGTH = 25
-
-val DIST_18 = 18.dp
-val DIST_16 = 16.dp
-const val CARD_WEIGHT = 5f
-val CARD_NAME_FONT = 18.sp
-val PADDING_25 = 25.dp
-val PADDING_12 = 12.dp
-val PADDING_5 = 5.dp
-val SHAPE_4 = 4.dp
-val HEIGHT_16 = 16.dp
-val HEIGHT_96 = 96.dp
-val SHAPE_18 = 18.dp
-val ELEVATION_4 = 4.dp
 
 class DiagramFile(
     var fileName: String = "",
@@ -166,7 +153,7 @@ class MenuActivity : ComponentActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-       super.onActivityResult(requestCode, resultCode, data)
+        super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != RESULT_OK) return
         when (requestCode) {
             FILE_EXPORT_REQUEST_CODE -> if (data != null) {
@@ -270,29 +257,29 @@ fun DiagramCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(PADDING_5, PADDING_5, PADDING_5, PADDING_5)
-            .height(HEIGHT_96)
-            .clip(RoundedCornerShape(SHAPE_18))
+            .padding(DpConst.DST_5, DpConst.DST_5, DpConst.DST_5, DpConst.DST_5)
+            .height(DpConst.DST_96)
+            .clip(RoundedCornerShape(DpConst.DST_18))
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(SHAPE_18),
-        elevation = ELEVATION_4
+        shape = RoundedCornerShape(DpConst.DST_18),
+        elevation = DpConst.DST_4
     ) {
 
-        Spacer(modifier = Modifier.height(HEIGHT_16))
+        Spacer(modifier = Modifier.height(DpConst.DST_16))
         Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(SHAPE_4))
+                .clip(RoundedCornerShape(DpConst.DST_4))
                 .background(MaterialTheme.colors.surface)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(start = PADDING_12)
+                    .padding(start = DpConst.DST_12)
                     .align(Alignment.CenterVertically)
                     .weight(CARD_WEIGHT)
             ) {
                 Text(
                     text = extractName(diagram.fileName),
-                    style = TextStyle(fontSize = CARD_NAME_FONT),
+                    style = TextStyle(fontSize = FontConst.FONT_18),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 3
                 )
@@ -302,7 +289,7 @@ fun DiagramCard(
                         style = typography.body2,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(end = PADDING_25)
+                        modifier = Modifier.padding(end = DpConst.DST_25)
                     )
                 }
             }
@@ -387,7 +374,7 @@ fun DiagramCard(
                 }
             }
         }
-        Spacer(modifier = Modifier.height(DIST_16))
+        Spacer(modifier = Modifier.height(DpConst.DST_16))
     }
 }
 
@@ -425,7 +412,7 @@ fun DiagramList(diagrams: MutableList<DiagramFile>, updater: () -> Unit, context
         }
         Row(
             Modifier
-                .padding(DIST_18)
+                .padding(DpConst.DST_18)
                 .fillMaxWidth()
         ) {
             OutlinedTextField(
