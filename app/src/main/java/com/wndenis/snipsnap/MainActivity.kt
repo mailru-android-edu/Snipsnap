@@ -44,7 +44,6 @@ import com.wndenis.snipsnap.data.CalendarEvent
 import com.wndenis.snipsnap.ui.theme.SnipsnapTheme
 import java.time.LocalDateTime
 
-
 const val MAX_SPAN = 3 * YEAR_SEC
 const val MIN_SPAN = 12 * HOUR_SEC
 
@@ -66,7 +65,6 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         activity = this
-
 
         val calAdapter = calendarAdapterCreator(isNew, name)
         calAdapter?.let { saveLastResort = calAdapter::exportToFile }
@@ -119,7 +117,6 @@ fun ErrorDialog(howToExit: () -> Unit) {
     )
 }
 
-
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @Composable
@@ -152,7 +149,6 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
             (viewSpan.value.toFloat() / zoomChange).toLong()
                 .coerceAtMost(MAX_SPAN)
                 .coerceAtLeast(MIN_SPAN)
-
     }
 
     Column(
@@ -182,7 +178,6 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
         // }
     ) {
         val calendarState = rememberScheduleCalendarState()
-
 
         Row {
             IconButton(
@@ -259,7 +254,6 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
                     }
                 }
         }
-
 
         Spacer(modifier = Modifier.height(8.dp))
 

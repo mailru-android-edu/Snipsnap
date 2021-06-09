@@ -35,7 +35,3 @@ fun extractName(filename: String?): String {
 fun makeName(filename: String): String {
     return "$filename.spsp"
 }
-
-
-
-

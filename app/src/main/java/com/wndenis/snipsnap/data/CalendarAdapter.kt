@@ -1,7 +1,6 @@
 package com.wndenis.snipsnap.data
 
 import android.util.Log
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -9,9 +8,6 @@ import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import com.wndenis.snipsnap.MainActivity
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.LocalDateTime
 
@@ -31,12 +27,12 @@ data class CalendarAdapter(
         val folder = MainActivity.getContext().filesDir
         val filename = "$name.spsp"
         // withContext(Dispatchers.IO) {
-            val file = File(folder, filename)
-            if (file.exists()) {
-                file.delete()
-            }
-            val res = file.writeText(jsonRepr)
-            Log.i("[SAVE]", "Save $res ${file.absolutePath}")
+        val file = File(folder, filename)
+        if (file.exists()) {
+            file.delete()
+        }
+        val res = file.writeText(jsonRepr)
+        Log.i("[SAVE]", "Save $res ${file.absolutePath}")
         // }
     }
 
@@ -55,10 +51,10 @@ data class CalendarAdapter(
         fun importFromFile(filename: String): CalendarAdapter? {
             var fileContent = ""
             // withContext(Dispatchers.IO) {
-                val folder = MainActivity.getContext().filesDir
-                val file = File(folder, filename)
-                if (file.exists())
-                    fileContent = file.readText()
+            val folder = MainActivity.getContext().filesDir
+            val file = File(folder, filename)
+            if (file.exists())
+                fileContent = file.readText()
             // }
             if (fileContent == "")
                 return null

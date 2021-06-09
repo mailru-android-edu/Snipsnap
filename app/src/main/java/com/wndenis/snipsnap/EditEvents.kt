@@ -1,6 +1,5 @@
 package com.wndenis.snipsnap
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,17 +42,6 @@ import com.vanpra.composematerialdialogs.color.ColorPalette
 import com.vanpra.composematerialdialogs.color.colorChooser
 import com.vanpra.composematerialdialogs.datetime.datetimepicker
 import com.wndenis.snipsnap.data.CalendarEvent
-import com.wndenis.snipsnap.ui.theme.P200
-import com.wndenis.snipsnap.ui.theme.P75
-import com.wndenis.snipsnap.ui.theme.R100
-import com.wndenis.snipsnap.ui.theme.R500
-import com.wndenis.snipsnap.ui.theme.T100
-import com.wndenis.snipsnap.ui.theme.T200
-import com.wndenis.snipsnap.ui.theme.T300
-import com.wndenis.snipsnap.ui.theme.T500
-import com.wndenis.snipsnap.ui.theme.Y100
-import com.wndenis.snipsnap.ui.theme.Y300
-import com.wndenis.snipsnap.ui.theme.Y400
 
 // import com.wndenis.snipsnap.ui.theme.*
 

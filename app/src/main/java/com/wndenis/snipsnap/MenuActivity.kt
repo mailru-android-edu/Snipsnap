@@ -85,7 +85,6 @@ class MenuActivity : ComponentActivity() {
         setContent {
             SnipsnapTheme {
 
-
                 Scaffold(
                     topBar = { TopBarMain() },
                     floatingActionButton = { AddButton(this) }
@@ -166,7 +165,7 @@ fun DiagramCard(
         shape = RoundedCornerShape(18.dp),
         elevation = 4.dp,
 
-        ) {
+    ) {
         Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier = Modifier

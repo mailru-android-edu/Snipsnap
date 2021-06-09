@@ -132,7 +132,6 @@ fun ScheduleCalendar(
 
             HoursRow(state)
 
-
             // EVENTS =============================================
             Box(modifier = Modifier.fillMaxWidth()) {
                 Column {
@@ -224,8 +223,7 @@ fun CalendarSectionRow(
                             ZoneId.systemDefault()
                         )
 
-                        Log.i("Long tap", "${this.size.width} tap at ${offset}")
-
+                        Log.i("Long tap", "${this.size.width} tap at $offset")
 
                         val newEvent = CalendarEvent(
                             startDate = newStartTime,
@@ -255,16 +253,16 @@ fun CalendarSectionRow(
             Triple(
                 event,
                 event.startDate.isAfter(state.startDateTime) &&
-                        event.startDate.isBefore(state.endDateTime),
+                    event.startDate.isBefore(state.endDateTime),
                 event.endDate.isAfter(state.startDateTime) &&
-                        event.endDate.isBefore(state.endDateTime),
+                    event.endDate.isBefore(state.endDateTime),
             )
         }.filter { (event, startHit, endHit) ->
             startHit || endHit || (
-                    event.startDate.isBefore(state.startDateTime) && event.endDate.isAfter(
-                        state.endDateTime
-                    )
-                    )
+                event.startDate.isBefore(state.startDateTime) && event.endDate.isAfter(
+                    state.endDateTime
+                )
+                )
         }
 
         if (eventMap.isNotEmpty()) {
@@ -314,8 +312,8 @@ fun CalendarSectionRow(
                             Text(
                                 text = event.startDate
                                     .format(DateTimeFormatter.ofPattern("HH:mm")) + " - " +
-                                        event.endDate
-                                            .format(DateTimeFormatter.ofPattern("HH:mm")),
+                                    event.endDate
+                                        .format(DateTimeFormatter.ofPattern("HH:mm")),
                                 fontSize = 12.sp,
                                 color = Color.White,
                                 maxLines = 1,
@@ -337,7 +335,6 @@ fun CalendarSectionRow(
         }
     }
 }
-
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -389,7 +386,6 @@ fun calculateYearFontSize(spanType: SpanType): Float {
         SpanType.YEAR, SpanType.TWO_YEAR, SpanType.BIGGER -> YEAR_SIZE_REGULAR
     }
 }
-
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @ExperimentalAnimationApi
@@ -447,7 +443,6 @@ fun calculateDayFontSize(spanType: SpanType): Float {
     }
 }
 
-
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -466,7 +461,6 @@ internal fun DaysRow(
                     end = localDateTime.plusDays(1),
                     totalWidth = constraints.maxWidth
                 )
-
 
                 Column(
                     modifier = Modifier
@@ -528,30 +522,31 @@ internal fun HoursRow(
     }
 }
 
-
 // DIVIDERS
 
 val DASH_LIGHT = DashDecision(
-    4f, PathEffect.dashPathEffect(
+    4f,
+    PathEffect.dashPathEffect(
         intervals = floatArrayOf(10f, 20f),
         phase = 5f
     )
 )
 val DASH_MEDIUM = DashDecision(
-    8f, PathEffect.dashPathEffect(
+    8f,
+    PathEffect.dashPathEffect(
         intervals = floatArrayOf(20f, 10f),
         phase = 5f
     )
 )
 val DASH_BOLD = DashDecision(
-    12f, PathEffect.dashPathEffect(
+    12f,
+    PathEffect.dashPathEffect(
         intervals = floatArrayOf(40f, 5f),
         phase = 5f
     )
 )
 
 typealias DashDecision = Pair<Float, PathEffect>
-
 
 fun decideDash(spanType: SpanType, vararg pairs: Pair<SpanType, DashDecision>): DashDecision {
     for (elem in pairs) {
@@ -613,7 +608,6 @@ fun MonthDividers(
         }
     }
 }
-
 
 @ExperimentalAnimationApi
 @Composable

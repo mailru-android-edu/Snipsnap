@@ -8,7 +8,6 @@ import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
-import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
