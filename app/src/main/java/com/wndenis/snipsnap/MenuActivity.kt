@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -83,6 +84,10 @@ import java.io.InputStreamReader
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import android.provider.OpenableColumns
+
+
+
 
 private const val FILE_EXPORT_REQUEST_CODE = 12
 private const val PICK_FILE = 2
@@ -198,12 +203,34 @@ class MenuActivity : ComponentActivity() {
         Log.e("obj", stringBuilder.toString())
         // add new file
         val folder = this.filesDir
-        val filename = "importedFile.spsp"
+        val filename = getFileName(uri)
         val file = File(folder, filename)
-        if (file.exists())
-            file.delete()
         val res = file.writeText(stringBuilder.toString())
-        startEditing(filename, false, this)
+        if (filename != null) {
+            startEditing(filename, false, this)
+        }
+    }
+
+    fun getFileName(uri: Uri): String? {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            val cursor: Cursor? = contentResolver.query(uri, null, null, null, null)
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                }
+            } finally {
+                cursor?.close()
+            }
+        }
+        if (result == null) {
+            result = uri.path
+            val cut = result!!.lastIndexOf('/')
+            if (cut != -1) {
+                result = result.substring(cut + 1)
+            }
+        }
+        return result
     }
 
     private fun addLines(
