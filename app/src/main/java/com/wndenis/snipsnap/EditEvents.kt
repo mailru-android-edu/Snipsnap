@@ -1,5 +1,6 @@
 package com.wndenis.snipsnap
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -29,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -36,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.buttons
+import com.vanpra.composematerialdialogs.color.ColorPalette
 import com.vanpra.composematerialdialogs.color.colorChooser
 import com.vanpra.composematerialdialogs.datetime.datetimepicker
 import com.wndenis.snipsnap.data.CalendarEvent
@@ -56,7 +60,6 @@ import com.wndenis.snipsnap.ui.theme.Y400
 @ExperimentalComposeUiApi
 @Composable
 fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
-    val colors = listOf(P200, P75, R100, R500, T100, T200, T300, T500, Y100, Y300, Y400)
     val editedEvent by remember { mutableStateOf(event.copy()) }
     var unusedBool by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -70,7 +73,7 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
     }
 
     fun getSelectedColor(): Int {
-        val i = colors.indexOf(editedEvent.color)
+        val i = ColorPalette.Primary.indexOf(editedEvent.color)
         if (i >= 0) return i
         return 0
     }
@@ -82,8 +85,8 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
             is24HourClock = true,
             positiveButtonText = "OK",
             negativeButtonText = "Отмена",
-//            datePickerTitle = "Выберите дату",
-//            timePickerTitle = "Выберите время",
+            datePickerTitle = "Дата",
+            timePickerTitle = "Время",
             onCancel = updater,
             onDateTimeChange = { dt ->
                 editedEvent.startDate = dt
@@ -99,8 +102,8 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
             is24HourClock = true,
             positiveButtonText = "OK",
             negativeButtonText = "Отмена",
-            datePickerTitle = "Выберите дату",
-            timePickerTitle = "Выберите время",
+            datePickerTitle = "Дата",
+            timePickerTitle = "Время",
             onCancel = updater,
             onDateTimeChange = { dt ->
                 editedEvent.endDate = dt
@@ -112,7 +115,7 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
     val colorPicker = remember { MaterialDialog() }
     colorPicker.build {
         colorChooser(
-            colors = colors,
+            colors = ColorPalette.Primary,
             initialSelection = getSelectedColor()
         ) { color ->
             editedEvent.color = color
@@ -130,8 +133,8 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
-            shape = RoundedCornerShape(16.dp),
-            color = Color.White
+            shape = RoundedCornerShape(32.dp),
+            color = MaterialTheme.colors.surface
         ) {
             if (unusedBool) {
                 Spacer(modifier = Modifier.width(0.dp))
@@ -140,7 +143,7 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.SpaceAround
             ) {
                 // ================= Header
                 Row {
@@ -154,14 +157,15 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.textButtonColors(
-                        backgroundColor = Color.Red
+                        backgroundColor = MaterialTheme.colors.error,
+                        contentColor = MaterialTheme.colors.onError
                     ),
                     onClick = {
                         event.deleted = true
                         dismissAction()
                     }
                 ) {
-                    Text("Удалить")
+                    Text("Удалить", style = MaterialTheme.typography.button)
                 }
 
                 // ================= Edit name
@@ -192,8 +196,8 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                 Row {
                     Box(
                         modifier = Modifier
-//                            .fillMaxSize()
                             .wrapContentSize(Alignment.TopStart)
+                            .clip(MaterialTheme.shapes.small)
                     ) {
                         Text(
                             "Выберите цвет",
@@ -243,20 +247,15 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                 Row(horizontalArrangement = Arrangement.SpaceBetween) {
                     Button(
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.textButtonColors(
-                            backgroundColor = Color.Yellow
-                        ),
                         onClick = {
                             dismissAction()
                         }
                     ) {
                         Text("Отмена")
                     }
+                    Spacer(modifier = Modifier.width(10.dp))
                     Button(
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.textButtonColors(
-                            backgroundColor = Color.Green
-                        ),
                         onClick = {
                             applyChanges()
                         }

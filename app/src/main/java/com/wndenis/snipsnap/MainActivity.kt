@@ -3,11 +3,12 @@ package com.wndenis.snipsnap
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
-import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,7 +24,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material.icons.filled.ZoomOut
@@ -35,13 +36,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.wndenis.snipsnap.data.CalendarAdapter
 import com.wndenis.snipsnap.data.CalendarEvent
 import com.wndenis.snipsnap.ui.theme.SnipsnapTheme
 import java.time.LocalDateTime
+
+
+const val MAX_SPAN = 3 * YEAR_SEC
+const val MIN_SPAN = 12 * HOUR_SEC
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -61,6 +66,7 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         activity = this
+
 
         val calAdapter = calendarAdapterCreator(isNew, name)
         calAdapter?.let { saveLastResort = calAdapter::exportToFile }
@@ -113,11 +119,13 @@ fun ErrorDialog(howToExit: () -> Unit) {
     )
 }
 
+
+@ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @Composable
 fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -> Unit) {
-    val viewSpan = remember { mutableStateOf(48 * 3600L) }
-    val eventTimesVisible = remember { mutableStateOf(true) }
+    val defaultViewSpan = remember { 7 * DAY_SEC }
+    val viewSpan = remember { mutableStateOf(defaultViewSpan) }
     val calendarAdapter by rememberSaveable(stateSaver = CalendarAdapter.AdapterSaver) {
         mutableStateOf(
             passedCalendarAdapter
@@ -125,7 +133,6 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
     }
     calendarAdapter.exportToFile()
 
-    // val eventSections = rememberSaveable { (0..25).map { CalendarSection() }.toMutableList() }
     var doAddEvent by remember { mutableStateOf(false) }
     var editingEvent: CalendarEvent? by remember { mutableStateOf(null) }
 
@@ -141,18 +148,42 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
 
     var scale by remember { mutableStateOf(1f) }
     val state = rememberTransformableState { zoomChange, _, _ ->
-        scale *= zoomChange
+        viewSpan.value =
+            (viewSpan.value.toFloat() / zoomChange).toLong()
+                .coerceAtMost(MAX_SPAN)
+                .coerceAtLeast(MIN_SPAN)
+
     }
 
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .graphicsLayer(
-                scaleX = scale,
-                scaleY = scale,
-            )
-            .transformable(state = state)
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    val event = awaitPointerEvent()
+                    Log.i("Changes", "${event.changes.count()}")
+                }
+                detectTransformGestures { centroid, pan, zoom, rotation ->
+                    viewSpan.value =
+                        (viewSpan.value.toFloat() / zoom)
+                            .toLong()
+                            .coerceAtMost(MAX_SPAN)
+                            .coerceAtLeast(MIN_SPAN)
+                }
+            }
+        // .transformable(state = state)
+        // .pointerInput(Unit) {
+        //     detectTransformGestures {_, _, zoomChange, _ ->
+        //         (viewSpan.value.toFloat() / zoomChange).toLong()
+        //             .coerceAtMost(MAX_SPAN)
+        //             .coerceAtLeast(MIN_SPAN)
+        //
+        //     }
+        // }
     ) {
+        val calendarState = rememberScheduleCalendarState()
+
+
         Row {
             IconButton(
                 onClick = {
@@ -165,7 +196,7 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
 
             IconButton(
                 onClick = {
-                    viewSpan.value = (viewSpan.value * 2).coerceAtMost(96 * 3600)
+                    viewSpan.value = (viewSpan.value * 2).coerceAtMost(MAX_SPAN)
                 }
             ) {
                 Icon(imageVector = Icons.Default.ZoomOut, contentDescription = "increase")
@@ -173,19 +204,28 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(
                 onClick = {
-                    viewSpan.value = (viewSpan.value / 2).coerceAtLeast(3 * 3600)
+                    viewSpan.value = defaultViewSpan.coerceAtLeast(defaultViewSpan)
+                    calendarState.scrollToNow(defaultViewSpan)
                 }
             ) {
-                Icon(imageVector = Icons.Default.ZoomIn, contentDescription = "decrease")
+                Icon(imageVector = Icons.Default.Home, contentDescription = "Home")
             }
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(
                 onClick = {
-                    eventTimesVisible.value = !(eventTimesVisible.value)
+                    viewSpan.value = (viewSpan.value / 2).coerceAtLeast(MIN_SPAN)
                 }
             ) {
-                Icon(imageVector = Icons.Default.Description, contentDescription = "decrease")
+                Icon(imageVector = Icons.Default.ZoomIn, contentDescription = "decrease")
             }
+            // Spacer(modifier = Modifier.width(8.dp))
+            // IconButton(
+            //     onClick = {
+            //         eventTimesVisible.value = !(eventTimesVisible.value)
+            //     }
+            // ) {
+            //     Icon(imageVector = Icons.Default.Description, contentDescription = "description")
+            // }
 
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(
@@ -220,14 +260,13 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
                 }
         }
 
-        val calendarState = rememberScheduleCalendarState()
 
         Spacer(modifier = Modifier.height(8.dp))
 
         ScheduleCalendar(
             state = calendarState,
             now = LocalDateTime.now(),
-            eventTimesVisible = eventTimesVisible.value,
+            // eventTimesVisible = eventTimesVisible.value,
             adapter = calendarAdapter,
             viewSpan = viewSpan.value,
             editor = editor,

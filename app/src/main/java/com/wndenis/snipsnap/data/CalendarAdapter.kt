@@ -1,6 +1,7 @@
 package com.wndenis.snipsnap.data
 
 import android.util.Log
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -8,14 +9,17 @@ import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import com.wndenis.snipsnap.MainActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.LocalDateTime
 
-const val SECTION_COUNT = 25
+const val SECTION_COUNT = 9
 
 data class CalendarAdapter(
     val name: String,
-    val sections: List<CalendarSection> = (0..SECTION_COUNT).map { CalendarSection() }
+    val sections: List<CalendarSection> = (0 until SECTION_COUNT).map { CalendarSection() }
 ) {
 
     fun exportToString(): String {
@@ -26,12 +30,14 @@ data class CalendarAdapter(
         val jsonRepr = exportToString()
         val folder = MainActivity.getContext().filesDir
         val filename = "$name.spsp"
-        val file = File(folder, filename)
-        if (file.exists()) {
-            file.delete()
-        }
-        val res = file.writeText(jsonRepr)
-        Log.i("[SAVE]", "Save $res ${file.absolutePath}")
+        // withContext(Dispatchers.IO) {
+            val file = File(folder, filename)
+            if (file.exists()) {
+                file.delete()
+            }
+            val res = file.writeText(jsonRepr)
+            Log.i("[SAVE]", "Save $res ${file.absolutePath}")
+        // }
     }
 
     companion object {
@@ -47,12 +53,16 @@ data class CalendarAdapter(
         }
 
         fun importFromFile(filename: String): CalendarAdapter? {
-            val folder = MainActivity.getContext().filesDir
-            val file = File(folder, filename)
-            if (!file.exists())
+            var fileContent = ""
+            // withContext(Dispatchers.IO) {
+                val folder = MainActivity.getContext().filesDir
+                val file = File(folder, filename)
+                if (file.exists())
+                    fileContent = file.readText()
+            // }
+            if (fileContent == "")
                 return null
-            val jsonRepr = file.readText()
-            return importFromString(jsonRepr)
+            return importFromString(fileContent)
         }
         val AdapterSaver = run {
             Saver<CalendarAdapter, String>(

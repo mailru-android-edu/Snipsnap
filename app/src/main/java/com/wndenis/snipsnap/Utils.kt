@@ -8,6 +8,12 @@ import java.time.format.DateTimeFormatter
 
 const val MIN_FILE_LENGTH = 5
 
+const val HOUR_SEC = 3600L
+const val DAY_SEC = HOUR_SEC * 24
+const val WEEK_SEC = DAY_SEC * 7
+const val MONTH_SEC = DAY_SEC * 30 // wndenis: rough approx
+const val YEAR_SEC = DAY_SEC * 365
+
 fun LocalDateTime.conv(): String {
     val df = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
     return this.format(df)
@@ -29,3 +35,7 @@ fun extractName(filename: String?): String {
 fun makeName(filename: String): String {
     return "$filename.spsp"
 }
+
+
+
+

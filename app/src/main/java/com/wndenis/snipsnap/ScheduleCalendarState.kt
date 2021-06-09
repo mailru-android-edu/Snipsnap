@@ -8,6 +8,7 @@ import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -50,12 +51,26 @@ class ScheduleCalendarState(
         startDateTime.plusSeconds(this.viewSpanSeconds.value)
     }
 
+    val spanType: SpanType by derivedStateOf {
+        spanToType(viewSpanSeconds.value)
+    }
+
+    fun viewSpanSeconds(): Long {
+        return viewSpanSeconds.value
+    }
+
     private val viewSpanSeconds = Animatable(ChronoUnit.DAYS.duration.seconds, LongToVector)
     private val secondsOffset = Animatable(0L, LongToVector)
     private val width = mutableStateOf(1)
 
-    internal fun updateView(newViewSpanSeconds: Long, newWidth: Int) {
-        this.width.value = newWidth
+    private var canUpdateView = true
+    var canScroll = mutableStateOf(true)
+
+    internal fun updateView(newViewSpanSeconds: Long, newWidth: Int? = null) {
+        if (!canUpdateView)
+            return
+        newWidth?.let { this.width.value = newWidth }
+
         val currentViewSpanSeconds = viewSpanSeconds.value
         coroutineScope.launch {
             viewSpanSeconds.animateTo(newViewSpanSeconds)
@@ -72,6 +87,20 @@ class ScheduleCalendarState(
             secondsOffset.snapTo(secondsOffset.value - it.toSeconds())
         }
         it
+    }
+
+    fun scrollToNow(newSpan: Long) {
+        coroutineScope.launch {
+            canUpdateView = false
+            secondsOffset.animateTo(-newSpan / 4)
+        }
+        coroutineScope.launch {
+            canUpdateView = false
+            viewSpanSeconds.animateTo(newSpan)
+            canUpdateView = true
+            // wndenis: sorry for this spaghetti, I had no time to deal with it
+            updateView(newSpan)
+        }
     }
 
     private val secondsInPx by derivedStateOf {
@@ -154,6 +183,43 @@ class ScheduleCalendarState(
         val width = ((endOffsetPercent - startOffsetPercent) * totalWidth).toInt() + 1
         val offsetX = (startOffsetPercent * totalWidth).toInt()
         return width to offsetX
+    }
+}
+
+enum class SpanType {
+    LESSER, WEEK, TWO_WEEK, TWO_WEEK_A_HALF, MONTH, THREE_MONTH, SIX_MONTH, YEAR, TWO_YEAR, BIGGER
+}
+
+private fun spanToType(span: Long): SpanType {
+    when {
+        span <= WEEK_SEC / 2 -> {
+            return SpanType.LESSER
+        }
+        span <= WEEK_SEC -> {
+            return SpanType.WEEK
+        }
+        span <= WEEK_SEC * 2 -> {
+            return SpanType.TWO_WEEK
+        }
+        span <= WEEK_SEC * 2 + WEEK_SEC / 2 -> {
+            return SpanType.TWO_WEEK_A_HALF
+        }
+        span <= MONTH_SEC -> {
+            return SpanType.MONTH
+        }
+        span <= MONTH_SEC * 3 -> {
+            return SpanType.THREE_MONTH
+        }
+        span <= MONTH_SEC * 6 -> {
+            return SpanType.SIX_MONTH
+        }
+        span <= YEAR_SEC -> {
+            return SpanType.YEAR
+        }
+        span <= YEAR_SEC * 2 -> {
+            return SpanType.TWO_YEAR
+        }
+        else -> return SpanType.BIGGER
     }
 }
 

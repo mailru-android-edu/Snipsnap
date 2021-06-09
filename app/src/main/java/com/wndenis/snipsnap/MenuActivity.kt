@@ -2,7 +2,6 @@ package com.wndenis.snipsnap
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -40,7 +39,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -52,16 +50,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.buttons
-import com.wndenis.snipsnap.ui.theme.Y400
+import com.wndenis.snipsnap.ui.theme.SnipsnapTheme
 import java.io.File
 import java.time.Instant
 import java.time.LocalDateTime
@@ -82,20 +81,23 @@ class MenuActivity : ComponentActivity() {
     @OptIn(ExperimentalAnimationApi::class)
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(R.style.SplashScreenTheme)
 
         setContent {
-            Scaffold(
-                topBar = { TopBarMain() },
-                floatingActionButton = { AddButton(this) }
-            ) {
-                val diagrams = remember { mutableStateListOf<DiagramFile>() }
-                val updater = {
-                    diagrams.clear()
-                    updateFileList(diagrams)
+            SnipsnapTheme {
+
+
+                Scaffold(
+                    topBar = { TopBarMain() },
+                    floatingActionButton = { AddButton(this) }
+                ) {
+                    val diagrams = remember { mutableStateListOf<DiagramFile>() }
+                    val updater = {
+                        diagrams.clear()
+                        updateFileList(diagrams)
+                    }
+                    updater()
+                    DiagramList(diagrams, updater, this)
                 }
-                updater()
-                DiagramList(diagrams, updater, this)
             }
         }
     }
@@ -159,11 +161,12 @@ fun DiagramCard(
                 end = 5.dp
             )
             .height(96.dp)
+            .clip(RoundedCornerShape(18.dp))
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
         elevation = 4.dp,
 
-    ) {
+        ) {
         Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier = Modifier
@@ -204,30 +207,29 @@ fun DiagramCard(
                 horizontalAlignment = Alignment.End
             ) {
                 Row {
-                    IconButton(
-                        onClick = {
-
-                            val sendIntent = Intent().apply {
-                                action = Intent.ACTION_SEND
-                                putExtra(
-                                    Intent.EXTRA_STREAM,
-                                    Uri.parse("file://" + diagram.fullPath)
-                                )
-                                putExtra(Intent.EXTRA_SUBJECT, "Поделиться диаграммой")
-                                putExtra(Intent.EXTRA_TEXT, "Ура, прилетела диаграмма")
-                                type = "application/json"
-                            }
-                            val shareIntent =
-                                Intent.createChooser(sendIntent, "Поделиться диаграммой")
-                            // context.startActivity(shareIntent)
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Share,
-                            contentDescription = "export",
-                            tint = Color.White
-                        )
-                    }
+                    // IconButton(
+                    //     onClick = {
+                    //
+                    //         val sendIntent = Intent().apply {
+                    //             action = Intent.ACTION_SEND
+                    //             putExtra(
+                    //                 Intent.EXTRA_STREAM,
+                    //                 Uri.parse("file://" + diagram.fullPath)
+                    //             )
+                    //             putExtra(Intent.EXTRA_SUBJECT, "Поделиться диаграммой")
+                    //             putExtra(Intent.EXTRA_TEXT, "Ура, прилетела диаграмма")
+                    //             type = "application/json"
+                    //         }
+                    //         val shareIntent =
+                    //             Intent.createChooser(sendIntent, "Поделиться диаграммой")
+                    //         context.startActivity(shareIntent)
+                    //     }
+                    // ) {
+                    //     Icon(
+                    //         imageVector = Icons.Filled.Share,
+                    //         contentDescription = "export"
+                    //     )
+                    // }
                     IconButton(
                         onClick = {
                             onEdit()
@@ -289,6 +291,14 @@ fun DiagramList(diagrams: MutableList<DiagramFile>, updater: () -> Unit, context
 
     nameChanger.build {
         var oldName by remember { mutableStateOf("" + extractName(selectedDiagram?.fileName)) }
+        val textFieldValueState = remember {
+            mutableStateOf(
+                TextFieldValue(
+                    text = oldName,
+                    selection = TextRange(oldName.length)
+                )
+            )
+        }
         Row(
             Modifier
                 .padding(18.dp)
@@ -296,13 +306,15 @@ fun DiagramList(diagrams: MutableList<DiagramFile>, updater: () -> Unit, context
         ) {
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = oldName,
-                onValueChange = {
-                    var newStr = it
+                value = textFieldValueState.value,
+                onValueChange = { tfv ->
+                    var newStr = tfv.text
                     if (newStr.length > 25)
                         newStr = newStr.slice(0..25)
                     oldName = newStr
+                    textFieldValueState.value = tfv.copy(text = oldName)
                 },
+                isError = oldName.isEmpty(),
                 keyboardActions = KeyboardActions(
                     onAny = { hideKeyboard(context) }
                 ),
@@ -311,18 +323,21 @@ fun DiagramList(diagrams: MutableList<DiagramFile>, updater: () -> Unit, context
                 label = { Text("Название диаграммы") }
             )
         }
+
         buttons {
             negativeButton(
                 "Отмена",
                 onClick = { selectedDiagram = null }
             )
-            positiveButton(
-                "OK",
-                onClick = {
-                    nameChangerAction(oldName)
-                    selectedDiagram = null
-                }
-            )
+            if (textFieldValueState.value.text.isNotEmpty()) {
+                positiveButton(
+                    "OK",
+                    onClick = {
+                        nameChangerAction(oldName)
+                        selectedDiagram = null
+                    }
+                )
+            }
         }
     }
 
@@ -349,7 +364,7 @@ fun DiagramList(diagrams: MutableList<DiagramFile>, updater: () -> Unit, context
 @Composable
 fun AddButton(context: Context) {
     FloatingActionButton(
-        backgroundColor = Y400,
+        backgroundColor = MaterialTheme.colors.primary,
         onClick = { FABClick?.let { FABClick!!() } }
     ) {
         Icon(Icons.Filled.Add, contentDescription = "add a diagram")
