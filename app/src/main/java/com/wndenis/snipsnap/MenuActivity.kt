@@ -5,10 +5,7 @@ import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
-import android.provider.DocumentsContract
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -45,6 +42,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Publish
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -73,26 +72,15 @@ import com.wndenis.snipsnap.utils.conv
 import com.wndenis.snipsnap.utils.extractName
 import com.wndenis.snipsnap.utils.hideKeyboard
 import com.wndenis.snipsnap.utils.makeName
-import java.io.File
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import android.os.ParcelFileDescriptor
-
-import android.os.AsyncTask
-import androidx.compose.material.icons.filled.Publish
-import androidx.core.content.ContextCompat
-import com.google.android.material.internal.ContextUtils.getActivity
-import com.wndenis.snipsnap.MainActivity.Companion.getContext
-import com.wndenis.snipsnap.data.CalendarAdapter
-import com.wndenis.snipsnap.data.CalendarAdapter.Companion.importFromFile
 import java.io.BufferedReader
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStreamReader
-import java.lang.Exception
-
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 private const val FILE_EXPORT_REQUEST_CODE = 12
 private const val PICK_FILE = 2
@@ -105,7 +93,7 @@ class DiagramFile(
 )
 
 var FABClick: (() -> Unit)? = null
-var pathToFile: String = "";
+var pathToFile: String = ""
 
 class MenuActivity : ComponentActivity() {
     @ExperimentalMaterialApi
@@ -117,15 +105,16 @@ class MenuActivity : ComponentActivity() {
             arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ), 1
-        );
+            ),
+            1
+        )
         super.onCreate(savedInstanceState)
 
         setContent {
             SnipsnapTheme {
 
                 Scaffold(
-                    topBar = { TopBarMain() },
+                    topBar = { TopBarMain(this) },
                     floatingActionButton = { AddButton(this) }
                 ) {
                     val diagrams = remember { mutableStateListOf<DiagramFile>() }
@@ -203,7 +192,7 @@ class MenuActivity : ComponentActivity() {
                             }
                         }
                         Log.e("obj", stringBuilder.toString())
-                        //add new file
+                        // add new file
                         val folder = this.filesDir
                         val filename = "importedFile.spsp"
                         val file = File(folder, filename)
@@ -223,8 +212,8 @@ class MenuActivity : ComponentActivity() {
     }
 
     override fun onBackPressed() {
-        finishAffinity();
-        System.exit(0);
+        finishAffinity()
+        System.exit(0)
     }
 }
 
@@ -335,7 +324,7 @@ fun DiagramCard(
                     // }
                     IconButton(
                         onClick = {
-                            pathToFile = diagram.fullPath;
+                            pathToFile = diagram.fullPath
                             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                                 addCategory(Intent.CATEGORY_OPENABLE)
                                 type = "application/spsp"
@@ -348,7 +337,6 @@ fun DiagramCard(
                                 FILE_EXPORT_REQUEST_CODE,
                                 null
                             )
-
                         }
                     ) {
                         Icon(
@@ -481,7 +469,6 @@ fun DiagramList(diagrams: MutableList<DiagramFile>, updater: () -> Unit, context
         }
     }
 }
-
 
 @Composable
 fun AddButton(context: Context) {
