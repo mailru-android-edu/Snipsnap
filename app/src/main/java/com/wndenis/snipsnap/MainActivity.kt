@@ -49,6 +49,8 @@ import com.wndenis.snipsnap.ui.theme.SnipsnapTheme
 
 const val MAX_SPAN = 3 * YEAR_SEC
 const val MIN_SPAN = 12 * HOUR_SEC
+const val DAYS_IN_THE_WEEK = 7
+val WIDTH_8 = 8.dp
 
 val HEIGHT_8 = 8.dp
 val PADDING_8 = 8.dp
@@ -127,7 +129,7 @@ fun ErrorDialog(howToExit: () -> Unit) {
 @ExperimentalComposeUiApi
 @Composable
 fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -> Unit) {
-    val defaultViewSpan = remember { 7 * DAY_SEC }
+    val defaultViewSpan = remember { DAYS_IN_THE_WEEK * DAY_SEC }
     val viewSpan = remember { mutableStateOf(defaultViewSpan) }
     val calendarAdapter by rememberSaveable(stateSaver = CalendarAdapter.AdapterSaver) {
         mutableStateOf(
@@ -202,7 +204,7 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
             ) {
                 Icon(imageVector = Icons.Default.ZoomOut, contentDescription = "increase")
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(WIDTH_8))
             IconButton(
                 onClick = {
                     viewSpan.value = defaultViewSpan.coerceAtLeast(defaultViewSpan)
@@ -211,7 +213,7 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
             ) {
                 Icon(imageVector = Icons.Default.Home, contentDescription = "Home")
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(WIDTH_8))
             IconButton(
                 onClick = {
                     viewSpan.value = (viewSpan.value / 2).coerceAtLeast(MIN_SPAN)
@@ -228,7 +230,7 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
             //     Icon(imageVector = Icons.Default.Description, contentDescription = "description")
             // }
 
-            Spacer(modifier = Modifier.width(PADDING_8))
+            Spacer(modifier = Modifier.width(WIDTH_8))
             IconButton(
                 onClick = {
                     val text = calendarAdapter.exportToString()
@@ -261,7 +263,7 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
                 }
         }
 
-        Spacer(modifier = Modifier.height(HEIGHT_8))
+        Spacer(modifier = Modifier.height(WIDTH_8))
 
         ScheduleCalendar(
             state = calendarState,
