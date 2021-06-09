@@ -1,7 +1,6 @@
 package com.wndenis.snipsnap
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
@@ -105,19 +104,12 @@ fun ScheduleCalendar(
         state.updateView(viewSpan, constraints.maxWidth)
         // DIVIDERS =============================================
 
-        DayDividers(
-            state = state,
-            modifier = Modifier.matchParentSize()
-        )
-        MonthDividers(
-            state = state,
-            modifier = Modifier.matchParentSize()
-        )
+        DayDividers(state = state, modifier = Modifier.matchParentSize())
+        MonthDividers(state = state, modifier = Modifier.matchParentSize())
         YearDividers(
             state = state,
             modifier = Modifier.matchParentSize()
         )
-
         // CONTENT =============================================
         Column {
             // HEADERS =============================================
@@ -129,9 +121,7 @@ fun ScheduleCalendar(
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
             )
-
             HoursRow(state)
-
             // EVENTS =============================================
             Box(modifier = Modifier.fillMaxWidth()) {
                 Column {
@@ -146,7 +136,6 @@ fun ScheduleCalendar(
                         Divider()
                     }
                 }
-
                 // hour dividers
                 Canvas(modifier = Modifier.matchParentSize()) {
                     state.visibleHours.forEach { localDateTime ->
@@ -165,23 +154,65 @@ fun ScheduleCalendar(
                 }
             }
         }
-        val nowColor = MaterialTheme.colors.primary
         // "now" indicator =============================================
-        Canvas(modifier = Modifier.matchParentSize()) {
-            val offsetPercent = state.offsetFraction(now)
-            drawLine(
-                color = nowColor,
-                strokeWidth = 6f,
-                start = Offset(offsetPercent * size.width, 0f),
-                end = Offset(offsetPercent * size.width, size.height)
-            )
-            drawCircle(
-                nowColor,
-                center = Offset(offsetPercent * size.width, 12f),
-                radius = 12f
-            )
-        }
+        NowIndicator(modifier, state, now)
     }
+
+@Composable
+fun NowIndicator(modifier: Modifier, state: ScheduleCalendarState, now: LocalDateTime) {
+    val nowColor = MaterialTheme.colors.primary
+    Canvas(modifier = modifier) {
+        val offsetPercent = state.offsetFraction(now)
+        drawLine(
+            color = nowColor,
+            strokeWidth = 6f,
+            start = Offset(offsetPercent * size.width, 0f),
+            end = Offset(offsetPercent * size.width, size.height)
+        )
+        drawCircle(
+            nowColor,
+            center = Offset(offsetPercent * size.width, 12f),
+            radius = 12f
+        )
+    }
+}
+
+
+fun getTapEvent(
+    width: Int,
+    offset: Offset,
+    startDateTime: LocalDateTime,
+    endDateTime: LocalDateTime
+): CalendarEvent {
+    val pressDateRatio = offset.x / width
+
+    val minStart = startDateTime.toEpochSecond(ZoneOffset.UTC)
+    val maxEnd = endDateTime.toEpochSecond(ZoneOffset.UTC)
+
+    val spanDuration = maxEnd - minStart
+    val eventHalfDuration = spanDuration / 6f
+
+    val pressMid = (maxEnd - minStart) * pressDateRatio
+    val newStart = (minStart + pressMid - eventHalfDuration).toLong()
+    val newEnd = (minStart + pressMid + eventHalfDuration).toLong()
+
+    val newStartTime = LocalDateTime.ofInstant(
+        Instant.ofEpochSecond(newStart),
+        ZoneId.systemDefault()
+    )
+    val newEndTime = LocalDateTime.ofInstant(
+        Instant.ofEpochSecond(newEnd),
+        ZoneId.systemDefault()
+    )
+
+    val newEvent = CalendarEvent(
+        startDate = newStartTime,
+        endDate = newEndTime,
+        name = "Новое событие",
+        color = ColorPalette.Primary.random()
+    )
+    return newEvent
+}
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -201,35 +232,11 @@ fun CalendarSectionRow(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onLongPress = { offset ->
-                        val width = this.size.width
-                        val pressDateRatio = offset.x / width
-
-                        val minStart = state.startDateTime.toEpochSecond(ZoneOffset.UTC)
-                        val maxEnd = state.endDateTime.toEpochSecond(ZoneOffset.UTC)
-
-                        val spanDuration = maxEnd - minStart
-                        val eventHalfDuration = spanDuration / 6f
-
-                        val pressMid = (maxEnd - minStart) * pressDateRatio
-                        val newStart = (minStart + pressMid - eventHalfDuration).toLong()
-                        val newEnd = (minStart + pressMid + eventHalfDuration).toLong()
-
-                        val newStartTime = LocalDateTime.ofInstant(
-                            Instant.ofEpochSecond(newStart),
-                            ZoneId.systemDefault()
-                        )
-                        val newEndTime = LocalDateTime.ofInstant(
-                            Instant.ofEpochSecond(newEnd),
-                            ZoneId.systemDefault()
-                        )
-
-                        Log.i("Long tap", "${this.size.width} tap at $offset")
-
-                        val newEvent = CalendarEvent(
-                            startDate = newStartTime,
-                            endDate = newEndTime,
-                            name = "Новое событие",
-                            color = ColorPalette.Primary.random()
+                        val newEvent = getTapEvent(
+                            this.size.width,
+                            offset,
+                            state.startDateTime,
+                            state.endDateTime
                         )
                         section.events.add(newEvent)
 
@@ -239,7 +246,6 @@ fun CalendarSectionRow(
                             interSource.emit(press)
                             interSource.emit(PressInteraction.Release(press))
                         }
-
                         updater()
                     }
                 )
@@ -253,16 +259,16 @@ fun CalendarSectionRow(
             Triple(
                 event,
                 event.startDate.isAfter(state.startDateTime) &&
-                    event.startDate.isBefore(state.endDateTime),
+                        event.startDate.isBefore(state.endDateTime),
                 event.endDate.isAfter(state.startDateTime) &&
-                    event.endDate.isBefore(state.endDateTime),
+                        event.endDate.isBefore(state.endDateTime),
             )
         }.filter { (event, startHit, endHit) ->
             startHit || endHit || (
-                event.startDate.isBefore(state.startDateTime) && event.endDate.isAfter(
-                    state.endDateTime
-                )
-                )
+                    event.startDate.isBefore(state.startDateTime) && event.endDate.isAfter(
+                        state.endDateTime
+                    )
+                    )
         }
 
         if (eventMap.isNotEmpty()) {
@@ -312,8 +318,8 @@ fun CalendarSectionRow(
                             Text(
                                 text = event.startDate
                                     .format(DateTimeFormatter.ofPattern("HH:mm")) + " - " +
-                                    event.endDate
-                                        .format(DateTimeFormatter.ofPattern("HH:mm")),
+                                        event.endDate
+                                            .format(DateTimeFormatter.ofPattern("HH:mm")),
                                 fontSize = 12.sp,
                                 color = Color.White,
                                 maxLines = 1,

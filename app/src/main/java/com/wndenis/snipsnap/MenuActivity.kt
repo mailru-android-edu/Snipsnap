@@ -153,18 +153,12 @@ fun DiagramCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                bottom = 5.dp,
-                top = 5.dp,
-                start = 5.dp,
-                end = 5.dp
-            )
+            .padding(5.dp, 5.dp, 5.dp, 5.dp)
             .height(96.dp)
             .clip(RoundedCornerShape(18.dp))
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
-        elevation = 4.dp,
-
+        elevation = 4.dp
     ) {
         Spacer(modifier = Modifier.height(16.dp))
         Row(
@@ -180,9 +174,7 @@ fun DiagramCard(
             ) {
                 Text(
                     text = diagram.fileName.substring(0, diagram.fileName.length - 5),
-                    style = TextStyle(
-                        fontSize = (18.sp)
-                    ),
+                    style = TextStyle(fontSize = (18.sp)),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 3
                 )
@@ -192,9 +184,7 @@ fun DiagramCard(
                         style = typography.body2,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(
-                            end = 25.dp
-                        )
+                        modifier = Modifier.padding(end = 25.dp)
                     )
                 }
             }

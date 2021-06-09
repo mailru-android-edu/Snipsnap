@@ -42,8 +42,58 @@ import com.vanpra.composematerialdialogs.color.ColorPalette
 import com.vanpra.composematerialdialogs.color.colorChooser
 import com.vanpra.composematerialdialogs.datetime.datetimepicker
 import com.wndenis.snipsnap.data.CalendarEvent
+import java.time.LocalDateTime
 
 // import com.wndenis.snipsnap.ui.theme.*
+
+@Composable
+internal fun GetDatePicker(
+    materialDialog: MaterialDialog, initialDateTime: LocalDateTime,
+    updater: () -> Unit, onDateTimeChange: (LocalDateTime) -> Unit
+) {
+    materialDialog.build {
+        datetimepicker(
+            initialDateTime = initialDateTime,
+            is24HourClock = true,
+            positiveButtonText = "OK",
+            negativeButtonText = "Отмена",
+            datePickerTitle = "Дата",
+            timePickerTitle = "Время",
+            onCancel = updater,
+            onDateTimeChange = { dt ->
+                onDateTimeChange(dt)
+                updater()
+            }
+        )
+    }
+}
+
+
+@Composable
+internal fun GetColorPicker(
+    materialDialog: MaterialDialog,
+    initialSelection: Int = 0,
+    updater: () -> Unit,
+    onChangeColor: (Color) -> Unit
+) {
+    materialDialog.build {
+        colorChooser(
+            colors = ColorPalette.Primary,
+            initialSelection = initialSelection,
+            onColorSelected = onChangeColor
+        )
+        buttons {
+            negativeButton("Отмена")
+            positiveButton("OK", onClick = updater)
+        }
+    }
+}
+
+fun getSelectedColor(color: Color): Int {
+    val i = ColorPalette.Primary.indexOf(color)
+    if (i >= 0) return i
+    return 0
+}
 
 @ExperimentalComposeUiApi
 @Composable
@@ -60,61 +110,15 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
         dismissAction()
     }
 
-    fun getSelectedColor(): Int {
-        val i = ColorPalette.Primary.indexOf(editedEvent.color)
-        if (i >= 0) return i
-        return 0
-    }
-
     val date1 = remember { MaterialDialog() }
-    date1.build {
-        datetimepicker(
-            initialDateTime = editedEvent.startDate,
-            is24HourClock = true,
-            positiveButtonText = "OK",
-            negativeButtonText = "Отмена",
-            datePickerTitle = "Дата",
-            timePickerTitle = "Время",
-            onCancel = updater,
-            onDateTimeChange = { dt ->
-                editedEvent.startDate = dt
-                updater()
-            }
-        )
-    }
+    GetDatePicker(date1, editedEvent.startDate, updater, { dt -> editedEvent.startDate = dt })
 
     val date2 = remember { MaterialDialog() }
-    date2.build {
-        datetimepicker(
-            initialDateTime = editedEvent.endDate,
-            is24HourClock = true,
-            positiveButtonText = "OK",
-            negativeButtonText = "Отмена",
-            datePickerTitle = "Дата",
-            timePickerTitle = "Время",
-            onCancel = updater,
-            onDateTimeChange = { dt ->
-                editedEvent.endDate = dt
-                updater()
-            }
-        )
-    }
+    GetDatePicker(date1, editedEvent.endDate, updater, { dt -> editedEvent.endDate = dt })
 
     val colorPicker = remember { MaterialDialog() }
-    colorPicker.build {
-        colorChooser(
-            colors = ColorPalette.Primary,
-            initialSelection = getSelectedColor()
-        ) { color ->
-            editedEvent.color = color
-        }
-        buttons {
-            negativeButton("Отмена")
-            positiveButton("OK", onClick = updater)
-        }
-//        colorPicker()
-//        colorPicker(colors = ColorPalette.Primary)
-    }
+    GetColorPicker(colorPicker, getSelectedColor(editedEvent.color),
+        updater, { color -> editedEvent.color = color })
 
     Dialog(onDismissRequest = dismissAction) {
         Surface(
@@ -171,9 +175,7 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                             oldName = newStr
                             editedEvent.name = newStr
                         },
-                        keyboardActions = KeyboardActions(
-                            onAny = { hideKeyboard(context) }
-                        ),
+                        keyboardActions = KeyboardActions(onAny = { hideKeyboard(context) }),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences),
                         label = { Text("Название события") }
@@ -192,26 +194,18 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable(onClick = { colorPicker.show() })
-                                .background(
-                                    editedEvent.color
-                                )
+                                .background(editedEvent.color)
                                 .padding(10.dp)
                         )
                     }
                 }
-                Row {
-                    Divider(thickness = 1.dp)
-                }
+                Row { Divider(thickness = 1.dp) }
 
                 // ================= Date picker 1
                 Row {
                     Button(
-                        colors = ButtonDefaults.textButtonColors(
-                            backgroundColor = Color.Gray
-                        ),
-                        onClick = {
-                            date1.show()
-                        }
+                        colors = ButtonDefaults.textButtonColors(backgroundColor = Color.Gray),
+                        onClick = { date1.show() }
                     ) {
                         Text("Начало: " + editedEvent.startDate.conv(), color = Color.Black)
                     }
@@ -220,36 +214,20 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                 // ================= Date picker 2
                 Row {
                     Button(
-                        colors = ButtonDefaults.textButtonColors(
-                            backgroundColor = Color.Gray
-                        ),
-                        onClick = {
-                            date2.show()
-                        }
-                    ) {
-                        Text("Конец: " + editedEvent.endDate.conv(), color = Color.Black)
-                    }
+                        colors = ButtonDefaults.textButtonColors(backgroundColor = Color.Gray),
+                        onClick = { date2.show() }
+                    ) { Text("Конец: " + editedEvent.endDate.conv(), color = Color.Black) }
                 }
 
                 // ================= Cancel/Save
                 Row(horizontalArrangement = Arrangement.SpaceBetween) {
                     Button(
                         modifier = Modifier.weight(1f),
-                        onClick = {
-                            dismissAction()
-                        }
-                    ) {
-                        Text("Отмена")
-                    }
+                        onClick = { dismissAction() }) { Text("Отмена") }
                     Spacer(modifier = Modifier.width(10.dp))
                     Button(
                         modifier = Modifier.weight(1f),
-                        onClick = {
-                            applyChanges()
-                        }
-                    ) {
-                        Text("ОК")
-                    }
+                        onClick = { applyChanges() }) { Text("ОК") }
                 }
             }
         }
