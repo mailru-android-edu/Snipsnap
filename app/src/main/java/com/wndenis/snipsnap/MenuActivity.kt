@@ -79,6 +79,7 @@ import android.os.ParcelFileDescriptor
 import android.os.AsyncTask
 import androidx.compose.material.icons.filled.Publish
 import androidx.core.content.ContextCompat
+import com.google.android.material.internal.ContextUtils.getActivity
 import com.wndenis.snipsnap.MainActivity.Companion.getContext
 import com.wndenis.snipsnap.data.CalendarAdapter
 import com.wndenis.snipsnap.data.CalendarAdapter.Companion.importFromFile
@@ -216,6 +217,11 @@ class MenuActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onBackPressed() {
+        finishAffinity();
+        System.exit(0);
     }
 }
 
