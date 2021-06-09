@@ -15,7 +15,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import com.wndenis.snipsnap.calendar.components.DAY_SEC
+import com.wndenis.snipsnap.calendar.components.HALF_WEEK_SEC
+import com.wndenis.snipsnap.calendar.components.HOUR_SEC
 import com.wndenis.snipsnap.calendar.components.MONTH_SEC
+import com.wndenis.snipsnap.calendar.components.SIX_MONTH_SEC
+import com.wndenis.snipsnap.calendar.components.THREE_MONTH_SEC
+import com.wndenis.snipsnap.calendar.components.TWO_WEEK_A_HALF_SEC
+import com.wndenis.snipsnap.calendar.components.TWO_WEEK_SEC
+import com.wndenis.snipsnap.calendar.components.TWO_YEAR_SEC
 import com.wndenis.snipsnap.calendar.components.WEEK_SEC
 import com.wndenis.snipsnap.calendar.components.YEAR_SEC
 import com.wndenis.snipsnap.data.CalendarEvent
@@ -96,10 +104,12 @@ class ScheduleCalendarState(
         it
     }
 
+    val SPAN_PROPROTION = -1/4
+
     fun scrollToNow(newSpan: Long) {
         coroutineScope.launch {
             canUpdateView = false
-            secondsOffset.animateTo(-newSpan / 4)
+            secondsOffset.animateTo(newSpan * SPAN_PROPROTION)
         }
         coroutineScope.launch {
             canUpdateView = false
@@ -135,28 +145,36 @@ class ScheduleCalendarState(
         val startHour = startDateTime.truncatedTo(ChronoUnit.HOURS)
         val endHour = endDateTime.truncatedTo(ChronoUnit.HOURS).plusHours(1)
 
-        if (anchorRangeSeconds == 24 * 3600L) {
+        if (anchorRangeSeconds == H24) {
             emptyList()
         } else {
             startHour.between(endHour) { plusHours(1L) }.filter {
-                it.hour % (anchorRangeSeconds / 3600) == 0L && it.hour != 0
+                it.hour % (anchorRangeSeconds / HOUR_SEC) == 0L && it.hour != 0
             }.toList()
         }
     }
 
     private var anchorRangeSeconds by mutableStateOf(Long.MAX_VALUE)
     private var anchorRangePx by mutableStateOf(Float.MAX_VALUE)
+
+    private val H24 = HOUR_SEC * 24
+    private val H12 = HOUR_SEC * 12
+    private val H6 = HOUR_SEC * 6
+    private val H3 = HOUR_SEC * 3
+    private val H2 = HOUR_SEC * 2
+    private val H1 = HOUR_SEC * 1
+
     private suspend fun updateAnchors(viewSpanInSeconds: Long) {
-        anchorRangeSeconds = if (viewSpanInSeconds > 24 * 3600) {
-            24 * 3600
-        } else if (viewSpanInSeconds <= 24 * 3600 && viewSpanInSeconds > 12 * 3600) {
-            6 * 3600
-        } else if (viewSpanInSeconds <= 12 * 3600 && viewSpanInSeconds > 6 * 3600) {
-            3 * 3600
-        } else if (viewSpanInSeconds <= 6 * 3600 && viewSpanInSeconds > 3 * 3600) {
-            2 * 3600
+        anchorRangeSeconds = if (viewSpanInSeconds > H24) {
+            H24
+        } else if (viewSpanInSeconds <= H24 && viewSpanInSeconds > H12) {
+            H6
+        } else if (viewSpanInSeconds <= H12 && viewSpanInSeconds > H6) {
+            H3
+        } else if (viewSpanInSeconds <= H6 && viewSpanInSeconds > H3) {
+            H2
         } else {
-            3600
+            H1
         }
         anchorRangePx = anchorRangeSeconds.toPx()
         flingToNearestAnchor(secondsOffset.value.toPx())
@@ -198,35 +216,17 @@ enum class SpanType {
 }
 
 private fun spanToType(span: Long): SpanType {
-    when {
-        span <= WEEK_SEC / 2 -> {
-            return SpanType.LESSER
-        }
-        span <= WEEK_SEC -> {
-            return SpanType.WEEK
-        }
-        span <= WEEK_SEC * 2 -> {
-            return SpanType.TWO_WEEK
-        }
-        span <= WEEK_SEC * 2 + WEEK_SEC / 2 -> {
-            return SpanType.TWO_WEEK_A_HALF
-        }
-        span <= MONTH_SEC -> {
-            return SpanType.MONTH
-        }
-        span <= MONTH_SEC * 3 -> {
-            return SpanType.THREE_MONTH
-        }
-        span <= MONTH_SEC * 6 -> {
-            return SpanType.SIX_MONTH
-        }
-        span <= YEAR_SEC -> {
-            return SpanType.YEAR
-        }
-        span <= YEAR_SEC * 2 -> {
-            return SpanType.TWO_YEAR
-        }
-        else -> return SpanType.BIGGER
+    return when {
+        span <= HALF_WEEK_SEC -> SpanType.LESSER
+        span <= WEEK_SEC -> SpanType.WEEK
+        span <= TWO_WEEK_SEC -> SpanType.TWO_WEEK
+        span <= TWO_WEEK_A_HALF_SEC -> SpanType.TWO_WEEK_A_HALF
+        span <= MONTH_SEC -> SpanType.MONTH
+        span <= THREE_MONTH_SEC -> SpanType.THREE_MONTH
+        span <= SIX_MONTH_SEC -> SpanType.SIX_MONTH
+        span <= YEAR_SEC -> SpanType.YEAR
+        span <= TWO_YEAR_SEC -> SpanType.TWO_YEAR
+        else -> SpanType.BIGGER
     }
 }
 

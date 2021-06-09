@@ -84,6 +84,20 @@ import java.time.ZoneId
 
 private const val FILE_EXPORT_REQUEST_CODE = 12
 private const val PICK_FILE = 2
+const val MAX_FILE_NAME_LENGTH = 25
+
+val DIST_18 = 18.dp
+val DIST_16 = 16.dp
+const val CARD_WEIGHT = 5f
+val CARD_NAME_FONT = 18.sp
+val PADDING_25 = 25.dp
+val PADDING_12 = 12.dp
+val PADDING_5 = 5.dp
+val SHAPE_4 = 4.dp
+val HEIGHT_16 = 16.dp
+val HEIGHT_96 = 96.dp
+val SHAPE_18 = 18.dp
+val ELEVATION_4 = 4.dp
 
 class DiagramFile(
     var fileName: String = "",
@@ -256,28 +270,29 @@ fun DiagramCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(5.dp, 5.dp, 5.dp, 5.dp)
-            .height(96.dp)
-            .clip(RoundedCornerShape(18.dp))
+            .padding(PADDING_5, PADDING_5, PADDING_5, PADDING_5)
+            .height(HEIGHT_96)
+            .clip(RoundedCornerShape(SHAPE_18))
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(18.dp),
-        elevation = 4.dp
+        shape = RoundedCornerShape(SHAPE_18),
+        elevation = ELEVATION_4
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
+
+        Spacer(modifier = Modifier.height(HEIGHT_16))
         Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(4.dp))
+                .clip(RoundedCornerShape(SHAPE_4))
                 .background(MaterialTheme.colors.surface)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(start = 12.dp)
+                    .padding(start = PADDING_12)
                     .align(Alignment.CenterVertically)
-                    .weight(5f)
+                    .weight(CARD_WEIGHT)
             ) {
                 Text(
-                    text = diagram.fileName.substring(0, diagram.fileName.length - 5),
-                    style = TextStyle(fontSize = (18.sp)),
+                    text = extractName(diagram.fileName),
+                    style = TextStyle(fontSize = CARD_NAME_FONT),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 3
                 )
@@ -287,14 +302,14 @@ fun DiagramCard(
                         style = typography.body2,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(end = 25.dp)
+                        modifier = Modifier.padding(end = PADDING_25)
                     )
                 }
             }
 
             Column(
                 modifier = Modifier
-                    .weight(5f)
+                    .weight(CARD_WEIGHT)
                     .align(Alignment.CenterVertically),
                 horizontalAlignment = Alignment.End
             ) {
@@ -372,7 +387,7 @@ fun DiagramCard(
                 }
             }
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(DIST_16))
     }
 }
 
@@ -410,7 +425,7 @@ fun DiagramList(diagrams: MutableList<DiagramFile>, updater: () -> Unit, context
         }
         Row(
             Modifier
-                .padding(18.dp)
+                .padding(DIST_18)
                 .fillMaxWidth()
         ) {
             OutlinedTextField(
@@ -418,8 +433,8 @@ fun DiagramList(diagrams: MutableList<DiagramFile>, updater: () -> Unit, context
                 value = textFieldValueState.value,
                 onValueChange = { tfv ->
                     var newStr = tfv.text
-                    if (newStr.length > 25)
-                        newStr = newStr.slice(0..25)
+                    if (newStr.length > MAX_FILE_NAME_LENGTH)
+                        newStr = newStr.slice(0..MAX_FILE_NAME_LENGTH)
                     oldName = newStr
                     textFieldValueState.value = tfv.copy(text = oldName)
                 },

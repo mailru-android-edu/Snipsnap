@@ -50,6 +50,9 @@ import com.wndenis.snipsnap.ui.theme.SnipsnapTheme
 const val MAX_SPAN = 3 * YEAR_SEC
 const val MIN_SPAN = 12 * HOUR_SEC
 
+val HEIGHT_8 = 8.dp
+val PADDING_8 = 8.dp
+
 class MainActivity : ComponentActivity() {
     companion object {
         lateinit var activity: ComponentActivity
@@ -225,7 +228,7 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
             //     Icon(imageVector = Icons.Default.Description, contentDescription = "description")
             // }
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(PADDING_8))
             IconButton(
                 onClick = {
                     val text = calendarAdapter.exportToString()
@@ -258,7 +261,7 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
                 }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(HEIGHT_8))
 
         ScheduleCalendar(
             state = calendarState,

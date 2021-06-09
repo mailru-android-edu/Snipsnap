@@ -40,8 +40,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vanpra.composematerialdialogs.color.ColorPalette
+import com.wndenis.snipsnap.PADDING_8
+import com.wndenis.snipsnap.calendar.components.DASH_LIGHT
 import com.wndenis.snipsnap.calendar.components.DayDividers
 import com.wndenis.snipsnap.calendar.components.DaysRow
+import com.wndenis.snipsnap.calendar.components.HALF_WEEK_SEC
 import com.wndenis.snipsnap.calendar.components.HoursRow
 import com.wndenis.snipsnap.calendar.components.MonthDividers
 import com.wndenis.snipsnap.calendar.components.MonthRow
@@ -63,7 +66,7 @@ import java.time.format.DateTimeFormatter
 fun ScheduleCalendar(
     state: ScheduleCalendarState,
     modifier: Modifier = Modifier,
-    viewSpan: Long = 48 * 3600L, // in seconds
+    viewSpan: Long = HALF_WEEK_SEC, // in seconds
     updater: () -> Unit,
     adapter: CalendarAdapter
 ) =
@@ -115,7 +118,7 @@ fun ScheduleCalendar(
                 state = state,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .padding(vertical = PADDING_8)
             )
             HoursRow(state)
             // EVENTS =============================================
@@ -141,10 +144,7 @@ fun ScheduleCalendar(
                             strokeWidth = 2f,
                             start = Offset(offsetPercent * size.width, 0f),
                             end = Offset(offsetPercent * size.width, size.height),
-                            pathEffect = PathEffect.dashPathEffect(
-                                intervals = floatArrayOf(10f, 20f),
-                                phase = 5f
-                            )
+                            pathEffect = DASH_LIGHT.second
                         )
                     }
                 }
@@ -153,6 +153,8 @@ fun ScheduleCalendar(
         // "now" indicator =============================================
         NowIndicator(modifier, state, now)
     }
+
+const val CIRCLE_OFFSET = 12f
 
 @Composable
 fun NowIndicator(modifier: Modifier, state: ScheduleCalendarState, now: LocalDateTime) {
@@ -167,11 +169,13 @@ fun NowIndicator(modifier: Modifier, state: ScheduleCalendarState, now: LocalDat
         )
         drawCircle(
             nowColor,
-            center = Offset(offsetPercent * size.width, 12f),
+            center = Offset(offsetPercent * size.width, CIRCLE_OFFSET),
             radius = 12f
         )
     }
 }
+
+const val EVENT_HALF_DURATION_MULTIPLIER = 1f / 6f
 
 fun getTapEvent(
     width: Int,
@@ -185,7 +189,7 @@ fun getTapEvent(
     val maxEnd = endDateTime.toEpochSecond(ZoneOffset.UTC)
 
     val spanDuration = maxEnd - minStart
-    val eventHalfDuration = spanDuration / 6f
+    val eventHalfDuration = spanDuration * EVENT_HALF_DURATION_MULTIPLIER
 
     val pressMid = (maxEnd - minStart) * pressDateRatio
     val newStart = (minStart + pressMid - eventHalfDuration).toLong()
@@ -290,7 +294,7 @@ fun CalendarSectionRow(
 
                     Column(
                         modifier = Modifier
-                            .padding(vertical = 8.dp)
+                            .padding(vertical = PADDING_8)
                             .width(with(LocalDensity.current) { width.toDp() })
                             .offset { IntOffset(offsetX, 0) }
                             .background(event.color, shape = shape)
