@@ -46,6 +46,13 @@ import com.wndenis.snipsnap.utils.conv
 import com.wndenis.snipsnap.utils.hideKeyboard
 import java.time.LocalDateTime
 
+val PADDING_24 = 24.dp
+val SIZE_32= 32.dp
+val PADDING_16 = 16.dp
+const val STR_LENGTH = 25
+val WIDTH_10 = 10.dp
+val PADDING_10 = 10.dp
+
 @Composable
 internal fun GetDatePicker(
     materialDialog: MaterialDialog,
@@ -129,8 +136,8 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
         Surface(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
-            shape = RoundedCornerShape(32.dp),
+                .padding(PADDING_24),
+            shape = RoundedCornerShape(SIZE_32),
             color = MaterialTheme.colors.surface
         ) {
             if (unusedBool) {
@@ -139,7 +146,7 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(PADDING_16),
                 verticalArrangement = Arrangement.SpaceAround
             ) {
                 // ================= Header
@@ -173,8 +180,8 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                         value = oldName,
                         onValueChange = {
                             var newStr = it
-                            if (newStr.length > 25)
-                                newStr = newStr.slice(0..25)
+                            if (newStr.length > STR_LENGTH)
+                                newStr = newStr.slice(0..STR_LENGTH)
                             oldName = newStr
                             editedEvent.name = newStr
                         },
@@ -198,7 +205,7 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                                 .fillMaxWidth()
                                 .clickable(onClick = { colorPicker.show() })
                                 .background(editedEvent.color)
-                                .padding(10.dp)
+                                .padding(PADDING_10)
                         )
                     }
                 }
@@ -228,7 +235,7 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                         modifier = Modifier.weight(1f),
                         onClick = { dismissAction() }
                     ) { Text("Отмена") }
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(WIDTH_10))
                     Button(
                         modifier = Modifier.weight(1f),
                         onClick = { applyChanges() }
