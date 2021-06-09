@@ -8,25 +8,31 @@ import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
@@ -57,6 +63,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -65,6 +72,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.startActivityForResult
+import com.google.accompanist.glide.rememberGlidePainter
+import com.google.accompanist.imageloading.ImageLoadState
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.buttons
 import com.wndenis.snipsnap.ui.theme.DpConst
@@ -84,10 +93,7 @@ import java.io.InputStreamReader
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import android.provider.OpenableColumns
-
-
-
+import kotlin.random.Random
 
 private const val FILE_EXPORT_REQUEST_CODE = 12
 private const val PICK_FILE = 2
@@ -165,30 +171,29 @@ class MenuActivity : ComponentActivity() {
         val uri = data.data ?: return
         when (requestCode) {
             FILE_EXPORT_REQUEST_CODE -> exportFile(data, uri)
-            PICK_FILE ->
-                {
-                    val contentResolver = contentResolver
-                    try {
-                        importDiagramFile(contentResolver, uri)
-                    } catch (e: FileNotFoundException) {
-                        e.printStackTrace()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
+            PICK_FILE -> {
+                val contentResolver = contentResolver
+                try {
+                    importDiagramFile(contentResolver, uri)
+                } catch (e: FileNotFoundException) {
+                    e.printStackTrace()
+                } catch (e: IOException) {
+                    e.printStackTrace()
                 }
+            }
         }
     }
 
-  /*  private fun importFile(data: Intent?, uri: Uri) {
-        val contentResolver = contentResolver
-        try {
-            importDiagramFile(contentResolver, uri)
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }*/
+    /*  private fun importFile(data: Intent?, uri: Uri) {
+          val contentResolver = contentResolver
+          try {
+              importDiagramFile(contentResolver, uri)
+          } catch (e: FileNotFoundException) {
+              e.printStackTrace()
+          } catch (e: IOException) {
+              e.printStackTrace()
+          }
+      }*/
 
     private fun importDiagramFile(
         contentResolver: ContentResolver,
@@ -280,11 +285,48 @@ fun startEditing(name: String, isNew: Boolean, context: Context) {
 
 @Composable
 fun TopBarMain(context: Context) {
+    val painter = rememberGlidePainter(
+        "https://picsum.photos/512/512", fadeIn = true,
+        previewPlaceholder = R.drawable.splash_image
+    )
     TopAppBar(
         title = { Text("Мои диаграммы") },
         navigationIcon = {
+            Column(modifier = Modifier
+                .fillMaxHeight()
+                .aspectRatio(1f)
+                .padding(DpConst.DST_10)
+                .clip(CircleShape)
+                .clickable {
+                    painter.request = "https://picsum.photos/${Random.nextInt(200, 500)}"
+                }) {
+
+
+                when (painter.loadState) {
+                    is ImageLoadState.Loading -> {
+                        CircularProgressIndicator(
+                            Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .fillMaxSize(),
+                            color = MaterialTheme.colors.onPrimary
+                        )
+                    }
+                    is ImageLoadState.Error -> {
+
+                    }
+                    is ImageLoadState.Success -> {
+                        Image(
+                            painter = painter,
+                            contentScale = ContentScale.Crop,
+                            contentDescription = "random pic",
+                            modifier = Modifier.fillMaxSize().clip(CircleShape)
+                        )
+                    }
+                }
+            }
         },
         actions = {
+
             IconButton(
                 onClick = {
                     val intent2 = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
