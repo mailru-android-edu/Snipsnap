@@ -2,8 +2,10 @@ package com.wndenis.snipsnap
 
 import android.Manifest
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -154,61 +156,83 @@ class MenuActivity : ComponentActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode != RESULT_OK) return
+        if (resultCode != RESULT_OK || data == null) return
+        val uri = data.data ?: return
         when (requestCode) {
-            FILE_EXPORT_REQUEST_CODE -> if (data != null) {
-                val uri = data.data
-                if (uri != null) {
-                    val contentResolver = contentResolver
-                    try {
-                        val file = File(pathToFile)
-                        val jsonRepr = file.readText()
-                        contentResolver.openFileDescriptor(uri, "w")?.use {
-                            FileOutputStream(it.fileDescriptor).use {
-                                it.write(
-                                    jsonRepr.toByteArray()
-                                )
-                            }
-                        }
-                    } catch (e: FileNotFoundException) {
-                        e.printStackTrace()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
+            FILE_EXPORT_REQUEST_CODE -> exportFile(data, uri)
+            PICK_FILE ->
+            {val contentResolver = contentResolver
+            try {
+                importDiagramFile(contentResolver, uri)
+            } catch (e: FileNotFoundException) {
+                e.printStackTrace()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }}
+        }
+    }
+
+  /*  private fun importFile(data: Intent?, uri: Uri) {
+        val contentResolver = contentResolver
+        try {
+            importDiagramFile(contentResolver, uri)
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }*/
+
+    private fun importDiagramFile(
+        contentResolver: ContentResolver,
+        uri: Uri
+    ) {
+        val stringBuilder = StringBuilder()
+        contentResolver.openInputStream(uri)?.use { inputStream ->
+            BufferedReader(InputStreamReader(inputStream)).use { reader ->
+                var line: String? = reader.readLine()
+                while (line != null)
+                    line = addLines(stringBuilder, line, reader)
+            }
+        }
+        Log.e("obj", stringBuilder.toString())
+        // add new file
+        val folder = this.filesDir
+        val filename = "importedFile.spsp"
+        val file = File(folder, filename)
+        if (file.exists())
+            file.delete()
+        val res = file.writeText(stringBuilder.toString())
+        startEditing(filename, false, this)
+    }
+
+    private fun addLines(
+        stringBuilder: StringBuilder,
+        line: String?,
+        reader: BufferedReader
+    ): String? {
+        var line1 = line
+        stringBuilder.append(line1)
+        line1 = reader.readLine()
+        return line1
+    }
+
+    private fun exportFile(data: Intent?, uri: Uri) {
+        val contentResolver = contentResolver
+        try {
+            val file = File(pathToFile)
+            val jsonRepr = file.readText()
+            contentResolver.openFileDescriptor(uri, "w")?.use {
+                FileOutputStream(it.fileDescriptor).use {
+                    it.write(
+                        jsonRepr.toByteArray()
+                    )
                 }
             }
-            PICK_FILE -> if (data != null) {
-                val uri = data.data
-                if (uri != null) {
-                    val contentResolver = contentResolver
-                    try {
-                        val stringBuilder = StringBuilder()
-                        contentResolver.openInputStream(uri)?.use { inputStream ->
-                            BufferedReader(InputStreamReader(inputStream)).use { reader ->
-                                var line: String? = reader.readLine()
-                                while (line != null) {
-                                    stringBuilder.append(line)
-                                    line = reader.readLine()
-                                }
-                            }
-                        }
-                        Log.e("obj", stringBuilder.toString())
-                        // add new file
-                        val folder = this.filesDir
-                        val filename = "importedFile.spsp"
-                        val file = File(folder, filename)
-                        if (file.exists()) {
-                            file.delete()
-                        }
-                        val res = file.writeText(stringBuilder.toString())
-                        startEditing(filename, false, this)
-                    } catch (e: FileNotFoundException) {
-                        e.printStackTrace()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-                }
-            }
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
     }
 
