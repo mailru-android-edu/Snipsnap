@@ -150,7 +150,7 @@ fun ScheduleCalendar(
         }
         // "now" indicator =============================================
         val nowColor = MaterialTheme.colors.primary
-        Canvas(modifier = modifier) {
+        Canvas(modifier = Modifier.matchParentSize()) {
             val offsetPercent = state.offsetFraction(now)
             drawLine(
                 color = nowColor,
