@@ -250,16 +250,16 @@ fun CalendarSectionRow(
             Triple(
                 event,
                 event.startDate.isAfter(state.startDateTime) &&
-                        event.startDate.isBefore(state.endDateTime),
+                    event.startDate.isBefore(state.endDateTime),
                 event.endDate.isAfter(state.startDateTime) &&
-                        event.endDate.isBefore(state.endDateTime),
+                    event.endDate.isBefore(state.endDateTime),
             )
         }.filter { (event, startHit, endHit) ->
             startHit || endHit || (
-                    event.startDate.isBefore(state.startDateTime) && event.endDate.isAfter(
-                        state.endDateTime
-                    )
-                    )
+                event.startDate.isBefore(state.startDateTime) && event.endDate.isAfter(
+                    state.endDateTime
+                )
+                )
         }
 
         if (eventMap.isNotEmpty()) {
@@ -309,8 +309,8 @@ fun CalendarSectionRow(
                             Text(
                                 text = event.startDate
                                     .format(DateTimeFormatter.ofPattern("HH:mm")) + " - " +
-                                        event.endDate
-                                            .format(DateTimeFormatter.ofPattern("HH:mm")),
+                                    event.endDate
+                                        .format(DateTimeFormatter.ofPattern("HH:mm")),
                                 fontSize = FontConst.FONT_12,
                                 color = Color.White,
                                 maxLines = 1,

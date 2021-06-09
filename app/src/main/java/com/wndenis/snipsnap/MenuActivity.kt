@@ -161,14 +161,16 @@ class MenuActivity : ComponentActivity() {
         when (requestCode) {
             FILE_EXPORT_REQUEST_CODE -> exportFile(data, uri)
             PICK_FILE ->
-            {val contentResolver = contentResolver
-            try {
-                importDiagramFile(contentResolver, uri)
-            } catch (e: FileNotFoundException) {
-                e.printStackTrace()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }}
+                {
+                    val contentResolver = contentResolver
+                    try {
+                        importDiagramFile(contentResolver, uri)
+                    } catch (e: FileNotFoundException) {
+                        e.printStackTrace()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }
         }
     }
 
