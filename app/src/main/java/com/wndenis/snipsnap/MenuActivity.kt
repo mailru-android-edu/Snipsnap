@@ -283,24 +283,32 @@ fun startEditing(name: String, isNew: Boolean, context: Context) {
     context.startActivity(intent)
 }
 
+const val MIN_RND_SIZE = 200
+const val MAX_RND_SIZE = 500
+
 @Composable
 fun TopBarMain(context: Context) {
     val painter = rememberGlidePainter(
-        "https://picsum.photos/512/512", fadeIn = true,
+        "https://picsum.photos/512/512",
+        fadeIn = true,
         previewPlaceholder = R.drawable.splash_image
     )
     TopAppBar(
         title = { Text("Мои диаграммы") },
         navigationIcon = {
-            Column(modifier = Modifier
-                .fillMaxHeight()
-                .aspectRatio(1f)
-                .padding(DpConst.DST_10)
-                .clip(CircleShape)
-                .clickable {
-                    painter.request = "https://picsum.photos/${Random.nextInt(200, 500)}"
-                }) {
-
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .aspectRatio(1f)
+                    .padding(DpConst.DST_10)
+                    .clip(CircleShape)
+                    .clickable {
+                        painter.request = "https://picsum.photos/${Random.nextInt(
+                            MIN_RND_SIZE,
+                            MAX_RND_SIZE
+                        )}"
+                    }
+            ) {
 
                 when (painter.loadState) {
                     is ImageLoadState.Loading -> {
@@ -312,7 +320,6 @@ fun TopBarMain(context: Context) {
                         )
                     }
                     is ImageLoadState.Error -> {
-
                     }
                     is ImageLoadState.Success -> {
                         Image(

@@ -70,7 +70,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-pager:0.10.0")
     implementation("com.google.firebase:protolite-well-known-types:18.0.0")
     implementation("com.google.accompanist:accompanist-swiperefresh:0.10.0")
-    implementation ("com.google.accompanist:accompanist-glide:0.10.0")
+    implementation("com.google.accompanist:accompanist-glide:0.10.0")
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.5")
     implementation("io.github.vanpra.compose-material-dialogs:core:0.4.1")
