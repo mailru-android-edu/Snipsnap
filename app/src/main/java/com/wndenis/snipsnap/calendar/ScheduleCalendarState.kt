@@ -33,12 +33,12 @@ import com.wndenis.snipsnap.calendar.components.WEEK_SEC
 import com.wndenis.snipsnap.calendar.components.YEAR_SEC
 import com.wndenis.snipsnap.data.CalendarEvent
 import com.wndenis.snipsnap.utils.between
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.math.abs
 import kotlin.math.roundToLong
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun rememberScheduleCalendarState(

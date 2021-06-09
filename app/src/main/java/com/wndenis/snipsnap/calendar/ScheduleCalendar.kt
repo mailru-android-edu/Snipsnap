@@ -51,13 +51,13 @@ import com.wndenis.snipsnap.data.CalendarEvent
 import com.wndenis.snipsnap.data.CalendarSection
 import com.wndenis.snipsnap.ui.theme.DpConst
 import com.wndenis.snipsnap.ui.theme.FontConst
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 @ExperimentalAnimationApi
 @Composable

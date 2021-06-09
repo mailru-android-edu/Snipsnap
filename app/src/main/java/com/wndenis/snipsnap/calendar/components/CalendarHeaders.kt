@@ -29,8 +29,8 @@ import com.wndenis.snipsnap.ui.theme.FontConst
 import com.wndenis.snipsnap.utils.daysBetween
 import com.wndenis.snipsnap.utils.monthsBetween
 import com.wndenis.snipsnap.utils.yearsBetween
-import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable

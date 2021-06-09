@@ -8,11 +8,11 @@ import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import com.wndenis.snipsnap.MainActivity
+import java.io.File
+import java.time.LocalDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import java.io.File
-import java.time.LocalDateTime
 
 const val SECTION_COUNT = 9
 
