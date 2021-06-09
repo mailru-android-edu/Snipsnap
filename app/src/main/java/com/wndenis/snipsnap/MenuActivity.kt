@@ -61,6 +61,10 @@ import androidx.compose.ui.unit.sp
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.buttons
 import com.wndenis.snipsnap.ui.theme.SnipsnapTheme
+import com.wndenis.snipsnap.utils.conv
+import com.wndenis.snipsnap.utils.extractName
+import com.wndenis.snipsnap.utils.hideKeyboard
+import com.wndenis.snipsnap.utils.makeName
 import java.io.File
 import java.time.Instant
 import java.time.LocalDateTime
@@ -228,7 +232,6 @@ fun DiagramCard(
                         onClick = {
                             val newName = makeName("${extractName(diagram.fileName)}_copy")
                             val destFile = File(diagram.folderPath, newName)
-                            Log.i("CLONE", "${diagram.fullPath} -> ${destFile.absolutePath}")
                             File(diagram.fullPath).copyTo(destFile, overwrite = true)
                             updater()
                         }
@@ -238,8 +241,7 @@ fun DiagramCard(
 
                     IconButton(
                         onClick = {
-                            val file = File(diagram.fullPath)
-                            val deleted: Boolean = file.delete()
+                            File(diagram.fullPath).delete()
                             updater()
                         }
                     ) {

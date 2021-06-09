@@ -1,4 +1,4 @@
-package com.wndenis.snipsnap
+package com.wndenis.snipsnap.calendar
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
@@ -15,6 +15,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import com.wndenis.snipsnap.data.CalendarEvent
+import com.wndenis.snipsnap.utils.MONTH_SEC
+import com.wndenis.snipsnap.utils.WEEK_SEC
+import com.wndenis.snipsnap.utils.YEAR_SEC
+import com.wndenis.snipsnap.utils.between
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -25,12 +30,14 @@ import kotlin.math.roundToLong
 @Composable
 fun rememberScheduleCalendarState(
     referenceDateTime: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS),
+    sectionEditor: (CalendarEvent) -> Unit,
     onDateTimeSelected: (LocalDateTime) -> Unit = {}
 ): ScheduleCalendarState {
     val coroutineScope = rememberCoroutineScope()
     return remember(coroutineScope) {
         ScheduleCalendarState(
             referenceDateTime = referenceDateTime,
+            sectionEditor = sectionEditor,
             onDateTimeSelected = onDateTimeSelected,
             coroutineScope = coroutineScope,
         )
@@ -39,6 +46,7 @@ fun rememberScheduleCalendarState(
 
 class ScheduleCalendarState(
     referenceDateTime: LocalDateTime,
+    val sectionEditor: (CalendarEvent) -> Unit,
     private val onDateTimeSelected: (LocalDateTime) -> Unit,
     private val coroutineScope: CoroutineScope
 ) {

@@ -42,14 +42,16 @@ import com.vanpra.composematerialdialogs.color.ColorPalette
 import com.vanpra.composematerialdialogs.color.colorChooser
 import com.vanpra.composematerialdialogs.datetime.datetimepicker
 import com.wndenis.snipsnap.data.CalendarEvent
+import com.wndenis.snipsnap.utils.conv
+import com.wndenis.snipsnap.utils.hideKeyboard
 import java.time.LocalDateTime
-
-// import com.wndenis.snipsnap.ui.theme.*
 
 @Composable
 internal fun GetDatePicker(
-    materialDialog: MaterialDialog, initialDateTime: LocalDateTime,
-    updater: () -> Unit, onDateTimeChange: (LocalDateTime) -> Unit
+    materialDialog: MaterialDialog,
+    initialDateTime: LocalDateTime,
+    updater: () -> Unit,
+    onDateTimeChange: (LocalDateTime) -> Unit
 ) {
     materialDialog.build {
         datetimepicker(
@@ -67,7 +69,6 @@ internal fun GetDatePicker(
         )
     }
 }
-
 
 @Composable
 internal fun GetColorPicker(
@@ -117,8 +118,12 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
     GetDatePicker(date1, editedEvent.endDate, updater, { dt -> editedEvent.endDate = dt })
 
     val colorPicker = remember { MaterialDialog() }
-    GetColorPicker(colorPicker, getSelectedColor(editedEvent.color),
-        updater, { color -> editedEvent.color = color })
+    GetColorPicker(
+        colorPicker,
+        getSelectedColor(editedEvent.color),
+        updater,
+        { color -> editedEvent.color = color }
+    )
 
     Dialog(onDismissRequest = dismissAction) {
         Surface(
@@ -161,9 +166,7 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                 }
 
                 // ================= Edit name
-                Row {
-                    Divider(thickness = 1.dp)
-                }
+                Row { Divider(thickness = 1.dp) }
                 Row {
                     var oldName by remember { mutableStateOf(editedEvent.name) }
                     OutlinedTextField(
@@ -223,11 +226,13 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
                 Row(horizontalArrangement = Arrangement.SpaceBetween) {
                     Button(
                         modifier = Modifier.weight(1f),
-                        onClick = { dismissAction() }) { Text("Отмена") }
+                        onClick = { dismissAction() }
+                    ) { Text("Отмена") }
                     Spacer(modifier = Modifier.width(10.dp))
                     Button(
                         modifier = Modifier.weight(1f),
-                        onClick = { applyChanges() }) { Text("ОК") }
+                        onClick = { applyChanges() }
+                    ) { Text("ОК") }
                 }
             }
         }

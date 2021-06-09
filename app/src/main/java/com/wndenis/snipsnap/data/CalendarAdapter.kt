@@ -11,8 +11,6 @@ import com.wndenis.snipsnap.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import java.io.File
 import java.time.LocalDateTime
 
@@ -53,17 +51,17 @@ data class CalendarAdapter(
             return gson.fromJson(stringRepr, CalendarAdapter::class.java)
         }
 
-        suspend fun importFromFile(filename: String): CalendarAdapter? {
+        fun importFromFile(filename: String): CalendarAdapter? {
             val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-            val job = scope.async {
-                var fileContent = ""
-                val folder = MainActivity.getContext().filesDir
-                val file = File(folder, filename)
-                if (file.exists())
-                    fileContent = file.readText()
-                return@async fileContent
-            }
-            val fileContent = job.await()
+            // val job = scope.async {
+            var fileContent = ""
+            val folder = MainActivity.getContext().filesDir
+            val file = File(folder, filename)
+            if (file.exists())
+                fileContent = file.readText()
+            // return@async fileContent
+            // }
+            // val fileContent = job.await()
             if (fileContent == "")
                 return null
             return importFromString(fileContent)
