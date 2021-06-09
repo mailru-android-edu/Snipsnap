@@ -15,10 +15,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import com.wndenis.snipsnap.calendar.components.MONTH_SEC
+import com.wndenis.snipsnap.calendar.components.WEEK_SEC
+import com.wndenis.snipsnap.calendar.components.YEAR_SEC
 import com.wndenis.snipsnap.data.CalendarEvent
-import com.wndenis.snipsnap.utils.MONTH_SEC
-import com.wndenis.snipsnap.utils.WEEK_SEC
-import com.wndenis.snipsnap.utils.YEAR_SEC
 import com.wndenis.snipsnap.utils.between
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

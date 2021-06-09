@@ -1,4 +1,4 @@
-package com.wndenis.snipsnap.calendar.calcomponents
+package com.wndenis.snipsnap.calendar.components
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility

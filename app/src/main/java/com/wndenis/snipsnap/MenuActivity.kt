@@ -254,15 +254,11 @@ fun DiagramCard(
     }
 }
 
-fun initSelected(): DiagramFile? {
-    return null
-}
-
 @ExperimentalMaterialApi
 @Composable
 fun DiagramList(diagrams: MutableList<DiagramFile>, updater: () -> Unit, context: Context) {
     val nameChanger by remember { mutableStateOf(MaterialDialog()) }
-    var selectedDiagram by remember { mutableStateOf(initSelected()) }
+    var selectedDiagram: DiagramFile? by remember { mutableStateOf(null) }
     var nameChangerAction = remember { { _: String -> } }
 
     val renameAndCreate = { newName: String ->

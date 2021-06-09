@@ -1,4 +1,4 @@
-package com.wndenis.snipsnap.calendar.calcomponents
+package com.wndenis.snipsnap.calendar.components
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Canvas

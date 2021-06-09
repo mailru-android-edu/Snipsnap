@@ -39,13 +39,13 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.wndenis.snipsnap.calendar.ScheduleCalendar
+import com.wndenis.snipsnap.calendar.components.DAY_SEC
+import com.wndenis.snipsnap.calendar.components.HOUR_SEC
+import com.wndenis.snipsnap.calendar.components.YEAR_SEC
 import com.wndenis.snipsnap.calendar.rememberScheduleCalendarState
 import com.wndenis.snipsnap.data.CalendarAdapter
 import com.wndenis.snipsnap.data.CalendarEvent
 import com.wndenis.snipsnap.ui.theme.SnipsnapTheme
-import com.wndenis.snipsnap.utils.DAY_SEC
-import com.wndenis.snipsnap.utils.HOUR_SEC
-import com.wndenis.snipsnap.utils.YEAR_SEC
 
 const val MAX_SPAN = 3 * YEAR_SEC
 const val MIN_SPAN = 12 * HOUR_SEC
@@ -162,7 +162,7 @@ fun ScheduleCalendarDemo(passedCalendarAdapter: CalendarAdapter, howToExit: () -
                     val event = awaitPointerEvent()
                     Log.i("Changes", "${event.changes.count()}")
                 }
-                detectTransformGestures { centroid, pan, zoom, rotation ->
+                detectTransformGestures { _, _, zoom, _ ->
                     viewSpan.value =
                         (viewSpan.value.toFloat() / zoom)
                             .toLong()

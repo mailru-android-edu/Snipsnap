@@ -1,21 +1,19 @@
-package com.wndenis.snipsnap.calendar.calcomponents
+package com.wndenis.snipsnap.calendar.components
 
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.ParentDataModifier
-import androidx.compose.ui.unit.Density
 import com.wndenis.snipsnap.calendar.SpanType
 import java.time.LocalDateTime
-
-internal data class LocalDateTimeData(
-    val localDateTime: LocalDateTime,
-) : ParentDataModifier {
-    override fun Density.modifyParentData(parentData: Any?) = this@LocalDateTimeData
-}
 
 internal val Measurable.localDateTime: LocalDateTime
     get() = (parentData as? LocalDateTimeData)?.localDateTime
         ?: error("No LocalDateTime for measurable $this")
+
+const val HOUR_SEC = 3600L
+const val DAY_SEC = HOUR_SEC * 24
+const val WEEK_SEC = DAY_SEC * 7
+const val MONTH_SEC = DAY_SEC * 30 // wndenis: rough approx
+const val YEAR_SEC = DAY_SEC * 365
 
 const val YEAR_SIZE_ZERO = 0f
 const val YEAR_SIZE_MICRO = 6f
