@@ -118,7 +118,7 @@ fun EditEvents(event: CalendarEvent, dismissAction: () -> Unit) {
     GetDatePicker(date1, editedEvent.startDate, updater, { dt -> editedEvent.startDate = dt })
 
     val date2 = remember { MaterialDialog() }
-    GetDatePicker(date1, editedEvent.endDate, updater, { dt -> editedEvent.endDate = dt })
+    GetDatePicker(date2, editedEvent.endDate, updater, { dt -> editedEvent.endDate = dt })
 
     val colorPicker = remember { MaterialDialog() }
     GetColorPicker(
